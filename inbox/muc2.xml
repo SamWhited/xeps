@@ -1,0 +1,111 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE xep SYSTEM 'xep.dtd' [
+  <!ENTITY % ents SYSTEM 'xep.ent'>
+%ents;
+]>
+<?xml-stylesheet type='text/xsl' href='xep.xsl'?>
+<xep>
+<header>
+  <title>MUC2</title>
+  <abstract>This document provides a protocol that can be used for multi-user chat using standard XMPP building blocks like pubsub and MAM.</abstract>
+  &LEGALNOTICE;
+  <number>xxxx</number>
+  <status>ProtoXEP</status>
+  <type>Standards Track</type>
+  <sig>Standards</sig>
+  <approver>Council</approver>
+  <dependencies>
+    <spec>XMPP Core</spec>
+    <spec>XMPP IM</spec>
+    <spec>XEP-0004</spec>
+    <spec>XEP-0030</spec>
+    <spec>XEP-0060</spec>
+    <spec>XEP-0313</spec>
+  </dependencies>
+  <supersedes/>
+  <supersededby/>
+  <shortname>MUC2</shortname>
+  &ksmithisode;
+  <revision>
+    <version>0.0.1</version>
+    <date>2015-06-26</date>
+    <initials>kis</initials>
+    <remark><p>First draft.</p></remark>
+  </revision>
+</header>
+<section1 topic='Introduction' anchor='intro'>
+  <p>MUC exists and works, but has a number of sharp edges, and doesn't map well onto some modern use cases. This spec defines a protocol that can address current requirements, is hopefully flexible enough to also address future requirements in this area, and that builds on existing XMPP mechanisms such as pubsub and MAM to minimise the work required to implement it (being less work to implement for clients and servers than MUC, if they already implement the dependencies).</p>
+</section1>
+
+<section1 topic='Requirements' anchor='reqs'>
+  <p>MUC occupancy persisting beyond clients being offline.
+     Nick sharing, with well-defined rules and all resources individually addressable
+     Presenceless MUC
+     Fast resync
+     Invisible Observers
+     Config can be observed from outside the room, given appropriate configuration (e.g. list of occupants, reading messages, etc.)</p>
+</section1>
+
+<section1 topic='Concepts' anchor='reqs'>
+  <p>Domain hosting rooms, muc2.example.com.
+     Each room a pubsub service (room@muc2.example.com).
+     Several well-known nodes comprise the room.
+     One node for subject changes.
+     One node for messages.
+     Affiliations of nodes tied together somehow (Central affiliation list, and then by reference?).
+     Presence in a node.
+     Each node in MAM.
+     Resync by doing a MAM query across all the nodes you care about to process diffs (also for 'last 100 messages'), or just a full fetch of pubsub items (e.g. for current presence).
+     Addressing and nicknames are split. Changing nicknames doesn't affect addresses. In a non-anonymous room, full JIDs are probably used. In an anonymous room, the room will have to magic them away.
+     </p>
+</section1>
+
+
+<section1 topic='Discovery' anchor='discovery'>
+  <p>Find domain.</p>
+</section1>
+
+<section1 topic='Use Cases' anchor='usecases'>
+  <section2 topic='Initial Join' anchor='initial'>
+    <p></p>
+    <example caption="Romeo joins" ><![CDATA[
+
+]]></example>
+  </section2>
+  <section2 topic='Check if allowed to create room' anchor='create-check'>
+    <p></p>
+    <example caption="Romeo joins" ><![CDATA[
+
+]]></example>
+  </section2>
+  
+</section1>
+
+
+<!--<section1 topic='Business Rules' anchor='rules'>
+  <ul>
+    <li>.</li>
+  </ul>
+</section1>-->
+<!--<section1 topic='Implementation Notes' anchor='impl'>
+  <p>OPTIONAL.</p>
+</section1>
+<section1 topic='Accessibility Considerations' anchor='access'>
+  <p>OPTIONAL.</p>
+</section1>
+<section1 topic='Internationalization Considerations' anchor='i18n'>
+  <p>OPTIONAL.</p>
+</section1>-->
+<section1 topic='Security Considerations' anchor='security'>
+  <p>This specification doesn't add additional security considerations beyond those of its dependencies.</p>
+</section1>
+<section1 topic='IANA Considerations' anchor='iana'>
+  <p>None.</p>
+</section1>
+<section1 topic='XMPP Registrar Considerations' anchor='registrar'>
+  <p>Needs a namespace.</p>
+</section1>
+<section1 topic='XML Schema' anchor='schema'>
+  <p>When advanced.</p>
+</section1>
+</xep>
