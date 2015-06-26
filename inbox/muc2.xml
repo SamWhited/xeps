@@ -43,7 +43,8 @@
      Presenceless MUC
      Fast resync
      Invisible Observers
-     Config can be observed from outside the room, given appropriate configuration (e.g. list of occupants, reading messages, etc.)</p>
+     Config can be observed from outside the room, given appropriate configuration (e.g. list of occupants, reading messages, etc.)
+     Large Open MUCs should not allow JIDs to be scraped</p>
 </section1>
 
 <section1 topic='Concepts' anchor='reqs'>
