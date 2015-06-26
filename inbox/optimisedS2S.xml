@@ -61,7 +61,7 @@ The solution set out here is to eliminate all the intial handshaking and to star
 
 <section1 topic='Use Cases' anchor='usecases'>
   <p>
-    An example scenario where this protocol is important is to support use of XMPP communication on an aircraft which only has slow high latency air ground communication, with round trips of several seconds (e.g., UHF or Satcom).   Use of stanard XMPP protocols (server to server or client to server) leads to long setup times.   This protocol can be deployed between an XMPP server on the aircraft and one on the ground.   This will be operated over a closed private network, where security considerations can be addressed primarily at the network level.
+    An example scenario where this protocol is important is to support use of XMPP communication on an aircraft which only has slow high latency air ground communication, with round trips of several seconds (e.g., UHF or Satcom).   Use of standard XMPP protocols (server to server or client to server) leads to long setup times.   This protocol can be deployed between an XMPP server on the aircraft and one on the ground.   This will be operated over a closed private network, where security considerations can be addressed primarily at the network level.
   </p>
 </section1>
 <section1 topic='Business Rules' anchor='rules'>
