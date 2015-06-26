@@ -7,7 +7,7 @@
 <xep>
 <header>
   <title>MUC2</title>
-  <abstract>This document provides a protocol that can be used for multi-user chat using standard XMPP building blocks like pubsub and MAM.</abstract>
+  <abstract>This document provides a protocol that can be used for multi-user chat for text messages and sharing other information such as images.   The protocol includes core chatroom features such as room topics and invitations and defines a strong room control model, including the ability to kick and ban users, to name room moderators and administrators, to require membership or passwords in order to join the room.  The protocol aims to maximise use of standard XMPP building blocks and in particular makes use of PubSub and MAM.</abstract>
   &LEGALNOTICE;
   <number>xxxx</number>
   <status>ProtoXEP</status>
@@ -34,7 +34,7 @@
   </revision>
 </header>
 <section1 topic='Introduction' anchor='intro'>
-  <p>MUC exists and works, but has a number of sharp edges, and doesn't map well onto some modern use cases. This spec defines a protocol that can address current requirements, is hopefully flexible enough to also address future requirements in this area, and that builds on existing XMPP mechanisms such as pubsub and MAM to minimise the work required to implement it (being less work to implement for clients and servers than MUC, if they already implement the dependencies).</p>
+  <p>** this text is in the wrong place ** MUC exists and works, but has a number of sharp edges, and doesn't map well onto some modern use cases. This spec defines a protocol that can address current requirements, is hopefully flexible enough to also address future requirements in this area, and that builds on existing XMPP mechanisms such as pubsub and MAM to minimise the work required to implement it (being less work to implement for clients and servers than MUC, if they already implement the dependencies).</p>
 </section1>
 
 <section1 topic='Requirements' anchor='reqs'>
@@ -46,6 +46,24 @@
      Config can be observed from outside the room, given appropriate configuration (e.g. list of occupants, reading messages, etc.)
      Large Open MUCs should not allow JIDs to be scraped</p>
 </section1>
+  
+<section1 topic="Relationship to MUC" anchor="oldmuc">
+  <p>
+    This specification is intended as a replacement for MUC specified in XEP-0045, refernced here as MUC.  There are a number of drivers for this specicification:
+  </p>
+  <ol start="1.">
+    <li>It is not practical to address a number of the requirements listed above with MUC or extensions to MUC. </li>
+    <li>MUC was developed as a complete service.   Subsequent to MUC,  PubSub and MAM have been developed and it is desirable that mult-user chat utilizes these building blocks.</li>
+  </ol>
+  <p>
+    It is anticipated that there will significant co-existence with MUC and this specification is designed so that:
+  </p>
+  <ol start="1.">
+    <li>XMPP Clients can implement MUC and this specification in a way that provides a coherent user experience.</li>
+    <li>XMPP Servers can implement this specification and also provide a MUC interface in order to support clients that only implement MUC.</li>
+  </ol>
+</section1>  
+
 
 <section1 topic='Concepts' anchor='reqs'>
   <p>Domain hosting rooms, muc2.example.com.
