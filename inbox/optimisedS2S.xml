@@ -47,7 +47,7 @@
 </header>
 <section1 topic='Introduction' anchor='intro'>
   <p>
-   This specification arose from work on deploying XMPP in high latency environments, with round trips of several second.  Even with data transfer rates as low as 2400 bit per second,  XMPP works well once connections are established as compressed messages are small and the protocols are fully asynchronous.  However the combination of low data rate and high latency led to connection establishment times of several minutes.   This was unworkable, particularly when connections were prone to failure.
+   This specification arose from work on deploying XMPP in high latency environments, with round trips of several second.  Even with data transfer rates as low as 2400 bit per second,  XMPP works well once connections are established as compressed messages are small and the protocols are fully asynchronous.   However the combination of low data rate and high latency led to connection establishment times of several minutes.   This was unworkable, particularly when connections were prone to failure.
   </p>
 <p> 
 The solution set out here is to eliminate all the intial handshaking and to start the S2S communication as if the handshaking had been correctly completed.  This cannot be used for communication between an arbitrary pair of servers, as in general the negotiation associated with the handshaking is vital for correctly determining a variety of parameters for use in the connection.    However, a pair of servers may operate by locally configuring information that would have been negotiated.   This enables the pair of servers to eliminate initial handshaking and data exchange.
