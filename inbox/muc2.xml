@@ -4,6 +4,7 @@
 %ents;
 ]>
 <?xml-stylesheet type='text/xsl' href='xep.xsl'?>
+<?xml-stylesheet type="text/css" href="xmpp.css"?>
 <xep>
 <header>
   <title>MUC2</title>
@@ -79,7 +80,36 @@
      </p>
 </section1>
 
-
+<section1 topic="Use of PubSub &amp; MAM">
+  <p>
+    MUC2 is makes use of XMPP PubSub for core communication and access control, and MAM for message storage to provide chat history services.  This section outlines this is achieved, and considers how a MUC room coven@chat.shakespeare.lit is provided.
+  </p>
+  <section2 topic="MUC2 and PubSub" anchor="basic pubsub">
+    <p>
+      MUC2 will be based upon domains provding an XMPP PubSub service.  So a domain chat.shakespeare.lit would be used to provide the example MUC room.  Client communications with the MUC2 service follow XEP-0060 PubSub and are required to conform to this specification. However, this specification is not simply an application that uses PubSub which can be implemented purely as a PubSub client, such as Form Discovery and Publishing specified in XEP-0346.  With MUC2 there is server side processing in addition to XEP-0060.  For example, when a message is published the message made available to subscribers may be different to the original message as a comsquence of additionl processing performed according to this XEP.   
+    </p>
+    <p>
+      An XMPP PubSub service provides a set of named nodes.   Each MUC room is provided by a number of these nodes.  The core node associated with a room holds messages to the MUC room.   To send a message to a MUC room, a user simply publishes the message onto the core node.   The message is then published to all subcribers of the node.   This is how MUC2 provides primary message distribution.
+    </p>
+  </section2>
+  <section2 topic="Node Naming Convetions" anchor="node naming">
+    <p>
+      A MUC room is provided by a set of PubSub nodes.  Nodes are named with the syntax: "muc/" &lt;room name&gt; "/" &lt; node type&gt;.   For example the core node of the example room would be "muc/coven/core".  The following node types are defined in this specification:
+    </p>
+    <ul>
+      <li>"core":  The node used for messages</li>
+      <li>"subject":  The active subject of the MUC room.</li>
+      <li>"config":  Room configuration and access information.</li>
+      <li>"roster": List of visible active room members.</li>
+      <li>*** Need to discuss with Kev before digging any deeper</li>
+    </ul>
+  </section2>
+  <section2 topic="MAM" anchor="mam use">
+    <p>
+      MUC2 makes use of MAM to provide server side history.   When a message arrives at the MUC2 service, the initial action is to store this message in MAM.  By using MAM first, this enables all messages to be published with a MAM id.   This will enable a client to access MUC history using MAM in a way that will efficiently avoid retrieval of messages that the client already has.
+    </p>
+  </section2>
+</section1>
 <section1 topic='Discovery' anchor='discovery'>
   <p>Find domain.</p>
 </section1>
