@@ -13,7 +13,7 @@
       <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=2.0"/>
       <meta name="DC.Title" content="MUC2"/>
       <meta name="DC.Creator" content="Kevin Smith"/>
-      <meta name="DC.Description" content="This document provides a protocol that can be used for multi-user chat using standard XMPP building blocks like pubsub and MAM."/>
+      <meta name="DC.Description" content="This document provides a protocol that can be used for multi-user chat for text messages and sharing other information such as images.   The protocol includes core chatroom features such as room topics and invitations and defines a strong room control model, including the ability to kick and ban users, to name room moderators and administrators, to require membership or passwords in order to join the room.  The protocol aims to maximise use of standard XMPP building blocks and in particular makes use of PubSub and MAM."/>
       <meta name="DC.Publisher" content="XMPP Standards Foundation"/>
       <meta name="DC.Contributor" content="XMPP Extensions Editor"/>
       <meta name="DC.Date" content="2015-06-26"/>
@@ -30,7 +30,7 @@
             <td>
                <strong>Abstract:</strong>
             </td>
-            <td>This document provides a protocol that can be used for multi-user chat using standard XMPP building blocks like pubsub and MAM.</td>
+            <td>This document provides a protocol that can be used for multi-user chat for text messages and sharing other information such as images.   The protocol includes core chatroom features such as room topics and invitations and defines a strong room control model, including the ability to kick and ban users, to name room moderators and administrators, to require membership or passwords in order to join the room.  The protocol aims to maximise use of standard XMPP building blocks and in particular makes use of PubSub and MAM.</td>
          </tr>
          <tr valign="top">
             <td>
@@ -77,17 +77,25 @@
          <p>
             <br/>1.  <a href="#intro">Introduction</a>
             <br/>2.  <a href="#reqs">Requirements</a>
-            <br/>3.  <a href="#reqs">Concepts</a>
-            <br/>4.  <a href="#discovery">Discovery</a>
-            <br/>5.  <a href="#usecases">Use Cases</a>
+            <br/>3.  <a href="#oldmuc">Relationship to MUC</a>
+            <br/>4.  <a href="#reqs">Concepts</a>
+            <br/>5.  <a href="#sect-d0e157">Use of PubSub &amp; MAM</a>
             <br/>   
-      5.1.  <a href="#initial">Initial Join</a>
+      5.1.  <a href="#basic pubsub">MUC2 and PubSub</a>
             <br/>   
-      5.2.  <a href="#create-check">Check if allowed to create room</a>
-            <br/>6.  <a href="#security">Security Considerations</a>
-            <br/>7.  <a href="#iana">IANA Considerations</a>
-            <br/>8.  <a href="#registrar">XMPP Registrar Considerations</a>
-            <br/>9.  <a href="#schema">XML Schema</a>
+      5.2.  <a href="#node naming">Node Naming Convetions</a>
+            <br/>   
+      5.3.  <a href="#mam use">MAM</a>
+            <br/>6.  <a href="#discovery">Discovery</a>
+            <br/>7.  <a href="#usecases">Use Cases</a>
+            <br/>   
+      7.1.  <a href="#initial">Initial Join</a>
+            <br/>   
+      7.2.  <a href="#create-check">Check if allowed to create room</a>
+            <br/>8.  <a href="#security">Security Considerations</a>
+            <br/>9.  <a href="#iana">IANA Considerations</a>
+            <br/>10.  <a href="#registrar">XMPP Registrar Considerations</a>
+            <br/>11.  <a href="#schema">XML Schema</a>
          </p>
          <p>
             <a href="#appendices">Appendices</a>
@@ -106,7 +114,7 @@
        <a name="intro">Introduction</a>
       </h2>
   
-      <p class="" style="">MUC exists and works, but has a number of sharp edges, and doesn't map well onto some modern use cases. This spec defines a protocol that can address current requirements, is hopefully flexible enough to also address future requirements in this area, and that builds on existing XMPP mechanisms such as pubsub and MAM to minimise the work required to implement it (being less work to implement for clients and servers than MUC, if they already implement the dependencies).</p>
+      <p class="" style="">** this text is in the wrong place ** MUC exists and works, but has a number of sharp edges, and doesn't map well onto some modern use cases. This spec defines a protocol that can address current requirements, is hopefully flexible enough to also address future requirements in this area, and that builds on existing XMPP mechanisms such as pubsub and MAM to minimise the work required to implement it (being less work to implement for clients and servers than MUC, if they already implement the dependencies).</p>
 
       <h2>2.
        <a name="reqs">Requirements</a>
@@ -121,6 +129,34 @@
      Large Open MUCs should not allow JIDs to be scraped</p>
 
       <h2>3.
+       <a name="oldmuc">Relationship to MUC</a>
+      </h2>
+  
+      <p class="" style="">
+    This specification is intended as a replacement for MUC specified in XEP-0045, refernced here as MUC.  There are a number of drivers for this specicification:
+  </p>
+  
+      <ol start="1." class="" style="">
+    
+         <li class="" style="">It is not practical to address a number of the requirements listed above with MUC or extensions to MUC. </li>
+    
+         <li class="" style="">MUC was developed as a complete service.   Subsequent to MUC,  PubSub and MAM have been developed and it is desirable that mult-user chat utilizes these building blocks.</li>
+  
+      </ol>
+  
+      <p class="" style="">
+    It is anticipated that there will significant co-existence with MUC and this specification is designed so that:
+  </p>
+  
+      <ol start="1." class="" style="">
+    
+         <li class="" style="">XMPP Clients can implement MUC and this specification in a way that provides a coherent user experience.</li>
+    
+         <li class="" style="">XMPP Servers can implement this specification and also provide a MUC interface in order to support clients that only implement MUC.</li>
+  
+      </ol>
+
+      <h2>4.
        <a name="reqs">Concepts</a>
       </h2>
   
@@ -136,18 +172,74 @@
      Addressing and nicknames are split. Changing nicknames doesn't affect addresses. In a non-anonymous room, full JIDs are probably used. In an anonymous room, the room will have to magic them away.
      </p>
 
-      <h2>4.
+      <h2>5.
+       <a name="sect-d0e157">Use of PubSub &amp; MAM</a>
+      </h2>
+  
+      <p class="" style="">
+    MUC2 is makes use of XMPP PubSub for core communication and access control, and MAM for message storage to provide chat history services.  This section outlines this is achieved, and considers how a MUC room coven@chat.shakespeare.lit is provided.
+  </p>
+  
+      <div class="indent">
+         <h3>5.1 <a name="basic pubsub">MUC2 and PubSub</a>
+         </h3>
+    
+         <p class="" style="">
+      MUC2 will be based upon domains provding an XMPP PubSub service.  So a domain chat.shakespeare.lit would be used to provide the example MUC room.  Client communications with the MUC2 service follow XEP-0060 PubSub and are required to conform to this specification. However, this specification is not simply an application that uses PubSub which can be implemented purely as a PubSub client, such as Form Discovery and Publishing specified in XEP-0346.  With MUC2 there is server side processing in addition to XEP-0060.  For example, when a message is published the message made available to subscribers may be different to the original message as a comsquence of additionl processing performed according to this XEP.   
+    </p>
+    
+         <p class="" style="">
+      An XMPP PubSub service provides a set of named nodes.   Each MUC room is provided by a number of these nodes.  The core node associated with a room holds messages to the MUC room.   To send a message to a MUC room, a user simply publishes the message onto the core node.   The message is then published to all subcribers of the node.   This is how MUC2 provides primary message distribution.
+    </p>
+  
+      </div>
+  
+      <div class="indent">
+         <h3>5.2 <a name="node naming">Node Naming Convetions</a>
+         </h3>
+    
+         <p class="" style="">
+      A MUC room is provided by a set of PubSub nodes.  Nodes are named with the syntax: "muc/" &lt;room name&gt; "/" &lt; node type&gt;.   For example the core node of the example room would be "muc/coven/core".  The following node types are defined in this specification:
+    </p>
+    
+         <ul class="" style="">
+      
+            <li class="" style="">"core":  The node used for messages</li>
+      
+            <li class="" style="">"subject":  The active subject of the MUC room.</li>
+      
+            <li class="" style="">"config":  Room configuration and access information.</li>
+      
+            <li class="" style="">"roster": List of visible active room members.</li>
+      
+            <li class="" style="">*** Need to discuss with Kev before digging any deeper</li>
+    
+         </ul>
+  
+      </div>
+  
+      <div class="indent">
+         <h3>5.3 <a name="mam use">MAM</a>
+         </h3>
+    
+         <p class="" style="">
+      MUC2 makes use of MAM to provide server side history.   When a message arrives at the MUC2 service, the initial action is to store this message in MAM.  By using MAM first, this enables all messages to be published with a MAM id.   This will enable a client to access MUC history using MAM in a way that will efficiently avoid retrieval of messages that the client already has.
+    </p>
+  
+      </div>
+
+      <h2>6.
        <a name="discovery">Discovery</a>
       </h2>
   
       <p class="" style="">Find domain.</p>
 
-      <h2>5.
+      <h2>7.
        <a name="usecases">Use Cases</a>
       </h2>
   
       <div class="indent">
-         <h3>5.1 <a name="initial">Initial Join</a>
+         <h3>7.1 <a name="initial">Initial Join</a>
          </h3>
     
          <p class="" style=""/>
@@ -164,7 +256,7 @@
       </div>
   
       <div class="indent">
-         <h3>5.2 <a name="create-check">Check if allowed to create room</a>
+         <h3>7.2 <a name="create-check">Check if allowed to create room</a>
          </h3>
     
          <p class="" style=""/>
@@ -181,25 +273,25 @@
       </div>
   
 
-      <h2>6.
+      <h2>8.
        <a name="security">Security Considerations</a>
       </h2>
   
       <p class="" style="">This specification doesn't add additional security considerations beyond those of its dependencies.</p>
 
-      <h2>7.
+      <h2>9.
        <a name="iana">IANA Considerations</a>
       </h2>
   
       <p class="" style="">None.</p>
 
-      <h2>8.
+      <h2>10.
        <a name="registrar">XMPP Registrar Considerations</a>
       </h2>
   
       <p class="" style="">Needs a namespace.</p>
 
-      <h2>9.
+      <h2>11.
        <a name="schema">XML Schema</a>
       </h2>
   
