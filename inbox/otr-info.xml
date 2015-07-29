@@ -1,0 +1,205 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE xep SYSTEM 'xep.dtd' [
+  <!ENTITY % ents SYSTEM 'xep.ent'>
+%ents;
+]>
+<?xml-stylesheet type='text/xsl' href='xep.xsl'?>
+<xep>
+<header>
+  <title>Current Off-the-Record Messaging Usage</title>
+	<abstract>
+		This document outlines the current usage of Off-the-Record messaging in
+		XMPP, its drawbacks, its strengths, and recommendations for improving the
+		end user experience.
+	</abstract>
+  &LEGALNOTICE;
+  <number>NOT_YET_ASSIGNED</number>
+  <status>ProtoXEP</status>
+  <type>Informational</type>
+  <sig>Standards</sig>
+  <approver>Council</approver>
+  <dependencies>
+    <spec>XMPP Core</spec>
+  </dependencies>
+  <supersedes/>
+  <supersededby/>
+  <shortname>NOT_YET_ASSIGNED</shortname>
+  <author>
+    <firstname>Sam</firstname>
+    <surname>Whited</surname>
+    <email>sam@samwhited.com</email>
+    <jid>sam@samwhited.com</jid>
+  </author>
+  <revision>
+    <version>0.0.1</version>
+    <date>2015-07-28</date>
+    <initials>ssw</initials>
+    <remark><p>Initial draft.</p></remark>
+  </revision>
+</header>
+<section1 topic='Introduction' anchor='intro'>
+	<p>
+		The Off-the-Record messaging protocol (OTR) was originally introduced in
+		the 2004 paper
+		<i><link url='https://otr.cypherpunks.ca/otr-wpes.pdf'>
+			Off-the-Record Communication, or, Why Not To Use PGP
+		</link></i>
+		<note>
+			Nikita Borisov, Ian Goldberg, Eric Brewer (2004-10-28). "Off-the-Record
+			Communication, or, Why Not To Use PGP"
+			&lt;<link url='https://otr.cypherpunks.ca/otr-wpes.pdf'>
+				https://otr.cypherpunks.ca/otr-wpes.pdf
+			</link>&gt;
+		</note>
+		and has since become the de facto standard for performing end-to-end
+		encryption in XMPP. OTR provides encryption, deniable authentication,
+		forward secrecy, and malleable encryption.
+	</p>
+	<p>
+		The OTR protocol itself is currently described by the document:
+		<i><link url='https://otr.cypherpunks.ca/Protocol-v3-4.0.0.html'>
+				Off-the-Record Messaging Protocol version 3
+		</link></i>
+		<note>
+			"Off-the-Record Messaging Protocol version 3"
+			&lt;<link url='https://otr.cypherpunks.ca/Protocol-v3-4.0.0.html'>
+				https://otr.cypherpunks.ca/Protocol-v3-4.0.0.html
+			</link>&gt;
+		</note>
+		and will not be redescribed here. This document aims to describe OTR's
+		usage and best practices within XMPP. This document is not intended to be a
+		current standard, or technical specification, as better methods of
+		end-to-end encryption are actively being researched.
+	</p>
+</section1>
+<section1 topic='Overview' anchor='overview'>
+	<p>
+		Though this document will not focus on the OTR protocol itself, a brief
+		overview is warranted to better understand the protocols strengths and
+		weaknesses.
+	</p>
+	<p>
+		OTR uses 128 bit AES symmetric-key encryption with Diffie-Hellman key
+		exchange and the SHA-1 hash function. An OTR session can be held only
+		between two parties, meaning that OTR is incompatible with &xep0045;, and
+		provides deniability in the form of malleable encryption (a third party may
+		generate fake messages). This means that if you were not a part of the
+		original conversation, you cannot prove that a message from the
+		conversation was actually sent by a given party. Unlike PGP (which had its
+		XMPP usage described in &xep0027;), OTR also provides forward secrecy; even
+		if a session is recorded and the primary key is compromised at a later
+		date, the OTR messages will not be able to be decrypted as each was
+		encrypted with an ephemeral key exchanged with Diffie-Hellman key exchange.
+	</p>
+</section1>
+<section1 topic='URI Query String'>
+	<p>
+		&rfc5122; defines a Uniform Resource Identifier (URI) and
+		Internationalized Resource Identifiers (IRIs) scheme for XMPP identifiers,
+		and &xep0147; defines various query components for use with XMPP URI's.
+		When an entity has an associated OTR fingerprint it's URI is often
+		formed with "otr-fingerprint" in the query string. Eg.
+
+    <example caption='OTR Fingerprint'>
+xmpp:feste@allfools.net?otr-fingerprint=AEA4D503298797D4A4FC823BC1D24524B4C54338
+    </example>
+	</p>
+</section1>
+<section1 topic='Discovery'>
+	<p>
+		Clients that support the OTR protocol do not advertise it in any of the
+		normal XMPP ways. Instead, OTR provides its own discovery mechanism. If a
+		client wishes to indicate support for OTR they include a special whitespace
+		tag in their messages. This tag can appear anywhere in the message, but it
+		is most often found at the end. The OTR tag comprises the following
+		bytes:
+
+		<example caption='OTR tag'>
+\x20\x09\x20\x20\x09\x09\x09\x09 \x20\x09\x20\x09\x20\x09\x20\x20
+		</example>
+
+		and is followed by one or more of the following sequences to indicate the
+		version of OTR which the client supports:
+
+		<example caption='OTR tag version 1'>
+\x20\x09\x20\x09\x20\x20\x09\x20
+		</example>
+
+	  Note that this version 1 tag must come before other version tags for
+		compatibility; it is, however, NOT RECOMMENDED to implement version 1 of
+		the OTR protocol.
+
+		<example caption='OTR tag version 2'>
+\x20\x20\x09\x09\x20\x20\x09\x20
+		</example>
+
+		<example caption='OTR tag version 3'>
+\x20\x20\x09\x09\x20\x20\x09\x09
+		</example>
+	</p>
+	<p>
+		When a client sees this message it may choose to start an OTR session
+		immediately, or merely indicate support to the user and allow the user to
+		manually start a session. This is done by sending an OTR query message
+		which includes the supported versions of OTR. In XMPP these are most
+		commonly version 2 and version 3, which would be indicated by a message
+		stanza which has a body that starts with the string:
+
+		<example caption='OTR query'>
+?OTR?v23?
+		</example>
+	</p>
+	<p>
+		Any message which begins with the afforementioned string (note that the
+		version number[s] may be different), postfixed with a payload should be
+		decrypted as an OTR message.
+	</p>
+</section1>
+<section1 topic='Message Processing Hints'>
+	<p>
+		&xep0334; defines a set hints for how messages should be handled by XMPP
+		servers. These hints are not hard and fast rules, but suggestions which
+		the servers may or may not choose to follow. Best practice is to include
+		the following hints on all OTR messages:
+
+		<example caption='Message processing hints'><![CDATA[
+<message
+	  from='malvolio@stewardsguild.lit/countesshousehold'
+	  to='olivia@countess.lit/veiled'>
+	<body>?OTR?v23?...</body>
+	<no-copy xmlns="urn:xmpp:hints"/>
+	<no-permanent-store xmlns="urn:xmpp:hints"/>
+	<no-permanent-storage xmlns="urn:xmpp:hints"/>
+</message>
+		]]></example>
+	</p>
+
+	<p>
+		Similarly, if &xep0280; is used, the "private" hint should also be included
+		to indicate that carbons are not necessary (since no other resource will
+		be able to read the message):
+
+		<example caption='No message carbons'><![CDATA[
+<private xmlns="urn:xmpp:carbons:2"/>
+		]]></example>
+	</p>
+</section1>
+<section1 topic='Acknowledgements' anchor='acks'>
+	<p>TODO</p>
+</section1>
+<section1 topic='Security Considerations' anchor='security'>
+	<p>TODO</p>
+</section1>
+<section1 topic='IANA Considerations' anchor='iana'>
+	<p>
+		This document requires no interaction with the Internet Assigned Numbers
+		Authority (IANA).
+	</p>
+</section1>
+<section1 topic='XMPP Registrar Considerations' anchor='registrar'>
+	<p>
+		No namespaces or parameters need to be registered with the XMPP Registrar
+		as a result of this document.
+	</p>
+</section1>
+</xep>
