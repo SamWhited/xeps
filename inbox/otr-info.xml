@@ -85,11 +85,11 @@
 		provides deniability in the form of malleable encryption (a third party may
 		generate fake messages). This means that if you were not a part of the
 		original conversation, you cannot prove that a message from the
-		conversation was actually sent by a given party. Unlike PGP (which had its
-		XMPP usage described in &xep0027;), OTR also provides forward secrecy; even
-		if a session is recorded and the primary key is compromised at a later
-		date, the OTR messages will not be able to be decrypted as each was
-		encrypted with an ephemeral key exchanged with Diffie-Hellman key exchange.
+		conversation was actually sent by a given party. Unlike OpenPGP, OTR also
+		provides forward secrecy; even if a session is recorded and the primary key
+		is compromised at a later date, the OTR messages will not be able to be
+		decrypted as each was encrypted with an ephemeral key exchanged with
+		Diffie-Hellman key exchange.
 	</p>
 </section1>
 <section1 topic='URI Query String'>
@@ -175,12 +175,24 @@ xmpp:feste@allfools.net?otr-fingerprint=AEA4D503298797D4A4FC823BC1D24524B4C54338
 	</p>
 
 	<p>
-		Similarly, if &xep0280; is used, the "private" hint should also be included
+		Similarly the "private" directive from &xep0280; should also be included
 		to indicate that carbons are not necessary (since no other resource will
 		be able to read the message):
 
 		<example caption='No message carbons'><![CDATA[
-<private xmlns="urn:xmpp:carbons:2"/>
+			<private xmlns="urn:xmpp:carbons:2"/>
+		]]></example>
+
+		<example caption='OTR message with processing hints'><![CDATA[
+<message
+	  from='malvolio@stewardsguild.lit/countesshousehold'
+	  to='olivia@countess.lit/veiled'>
+	<body>?OTR?v23?...</body>
+	<no-copy xmlns="urn:xmpp:hints"/>
+	<no-permanent-store xmlns="urn:xmpp:hints"/>
+	<no-permanent-storage xmlns="urn:xmpp:hints"/>
+	<private xmlns="urn:xmpp:carbons:2"/>
+</message>
 		]]></example>
 	</p>
 </section1>
