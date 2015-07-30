@@ -153,12 +153,13 @@ xmpp:feste@allfools.lit?otr-fingerprint=AEA4D503298797D4A4FC823BC1D24524B4C54338
 	<p>
 		Any message which begins with the afforementioned string (note that the
 		version number[s] may be different), postfixed with a payload should be
-		decrypted as an OTR message.
+		decrypted as an OTR message. The initialization message should not contain
+		a payload, and should just be the initialization string by itself.
 	</p>
 </section1>
 <section1 topic='Message Processing Hints'>
 	<p>
-		&xep0334; defines a set hints for how messages should be handled by XMPP
+		&xep0334; defines a set of hints for how messages should be handled by XMPP
 		servers. These hints are not hard and fast rules, but suggestions which
 		the servers may or may not choose to follow. Best practice is to include
 		the following hints on all OTR messages:
@@ -185,6 +186,9 @@ xmpp:feste@allfools.lit?otr-fingerprint=AEA4D503298797D4A4FC823BC1D24524B4C54338
 <private xmlns="urn:xmpp:carbons:2"/>
 		]]></example>
 
+		All together, an example OTR message might look like this (with the
+		majority of the body stripped out for readability):
+
 		<example caption='OTR message with processing hints'><![CDATA[
 <message
 	  from='malvolio@stewardsguild.lit/countesshousehold'
@@ -210,6 +214,14 @@ xmpp:feste@allfools.lit?otr-fingerprint=AEA4D503298797D4A4FC823BC1D24524B4C54338
 		start an OTR session in a carboned message (due to a server which does not
 		support the aforementioned "private" directive, or a client which does not
 		set it), it SHOULD be silently ignored.
+	</p>
+</section1>
+<section1 topic='Identity and Key Management'>
+	<p>
+		Because OTR sessions are always one-to-one, it is possible to have many
+		OTR sessions open to different resources of the same account. This means
+		that all OTR sessions should be associated with the peers full JID, and
+		resource parts should be used to choose an OTR session when sending to s
 	</p>
 </section1>
 <section1 topic='Acknowledgements' anchor='acks'>
@@ -248,7 +260,7 @@ xmpp:feste@allfools.lit?otr-fingerprint=AEA4D503298797D4A4FC823BC1D24524B4C54338
 		</note>.
 		This puts generating SHA-1 collisions well within the reach of governments
 		and well funded criminals. In this authors opinion, there are no
-		theoretical vulnreabilities, and SHA-1 should be treated as compromised.
+		theoretical vulnerabilities, and SHA-1 should be treated as compromised.
 	</p>
 </section1>
 <section1 topic='IANA Considerations' anchor='iana'>
