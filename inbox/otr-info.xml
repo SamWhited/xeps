@@ -92,27 +92,14 @@
 		exchanged with Diffie-Hellman key exchange with a 1536 bit modulus.
 	</p>
 </section1>
-<section1 topic='URI Query String'>
-	<p>
-		&rfc5122; defines a Uniform Resource Identifier (URI) and Internationalized
-		Resource Identifier (IRI) scheme for XMPP entities, and &xep0147; defines
-		various query components for use with XMPP URI's. When an entity has an
-		associated OTR fingerprint it's URI is often formed with "otr-fingerprint"
-		in the query string. Eg.
-
-    <example caption='OTR Fingerprint'>
-xmpp:feste@allfools.lit?otr-fingerprint=AEA4D503298797D4A4FC823BC1D24524B4C54338
-    </example>
-	</p>
-</section1>
 <section1 topic='Discovery'>
 	<p>
 		Clients that support the OTR protocol do not advertise it in any of the
 		normal XMPP ways. Instead, OTR provides its own discovery mechanism. If a
 		client wishes to indicate support for OTR they include a special whitespace
-		tag in their messages. This tag can appear anywhere in the message, but it
-		is most often found at the end. The OTR tag comprises the following
-		bytes:
+		tag in their messages. This tag can appear anywhere in the body of the
+		message stanza, but it is most often found at the end. The OTR tag
+		comprises the following bytes:
 
 		<example caption='OTR tag'>
 \x20\x09\x20\x20\x09\x09\x09\x09 \x20\x09\x20\x09\x20\x09\x20\x20
@@ -157,18 +144,44 @@ xmpp:feste@allfools.lit?otr-fingerprint=AEA4D503298797D4A4FC823BC1D24524B4C54338
 		a payload, and should just be the initialization string by itself.
 	</p>
 </section1>
-<section1 topic='Message Processing Hints'>
+<section1 topic='Message Construction and Decoding'>
+	<p>
+		When sending a message encrypted with OTR, it is RECOMMENDED to encrypt
+		only the text node of the &lt;body/&gt; element (the message itself).
+		However, there are some clients in the wild which will encrypt the entire
+		contents of the &lt;body/&gt; element, including sub-nodes. Because of
+		this behavior, it is RECOMMENDED that clients decrypt and expand any OTR
+		messages inside of the body element before re-processing the element as a
+		whole. Clients that support OTR MUST be tolerant of encrypted strings which
+		expand to XML, and those which expand to plain text messages.
+	</p>
+</section1>
+<section1 topic='Routing'>
+	<p>
+		XMPP is designed so that the client needs to know very little about where
+		and how a message will be routed. Generally, clients are encouraged to send
+		messages to the bare JID and allow the server to route the messages as it
+		sees fit. However, OTR requires that messages be sent to a particular
+		resource. Therefore clients SHOULD send OTR messages to a full JID,
+		possibly allowing the user to determine which resource they wish to start
+		an encrypted session with. Furthermore, if a client receives a request to
+		start an OTR session in a carboned message (due to a server which does not
+		support the aforementioned "private" directive, or a client which does not
+		set it), it SHOULD be silently ignored.
+	</p>
+</section1>
+<section1 topic='Message Processing'>
 	<p>
 		&xep0334; defines a set of hints for how messages should be handled by XMPP
 		servers. These hints are not hard and fast rules, but suggestions which
 		the servers may or may not choose to follow. Best practice is to include
 		the following hints on all OTR messages:
 
-		<example caption='Message processing hints'><![CDATA[
+    <code><![CDATA[
 <no-copy xmlns="urn:xmpp:hints"/>
 <no-permanent-store xmlns="urn:xmpp:hints"/>
 <no-permanent-storage xmlns="urn:xmpp:hints"/>
-		]]></example>
+    ]]></code>
 
 		Note that "no-permanent-storage" and "no-permanent-store" are both included
 		because at the time of this writing there is some confusion in XEP-0334
@@ -182,9 +195,9 @@ xmpp:feste@allfools.lit?otr-fingerprint=AEA4D503298797D4A4FC823BC1D24524B4C54338
 		to indicate that carbons are not necessary (since no other resource will
 		be able to read the message):
 
-		<example caption='No message carbons'><![CDATA[
+    <code><![CDATA[
 <private xmlns="urn:xmpp:carbons:2"/>
-		]]></example>
+    ]]></code>
 
 		All together, an example OTR message might look like this (with the
 		majority of the body stripped out for readability):
@@ -202,26 +215,23 @@ xmpp:feste@allfools.lit?otr-fingerprint=AEA4D503298797D4A4FC823BC1D24524B4C54338
 		]]></example>
 	</p>
 </section1>
-<section1 topic='Routing'>
+<section1 topic='Use in XMPP URIs'>
 	<p>
-		XMPP is designed so that the client needs to know very little about where
-		and how a message will be routed. Generally, implementations are encouraged
-		to send messages to the bare JID and allow the server to route the messages
-		as it sees fit. However, OTR requires that messages be sent to a particular
-		resource. Therefore clients SHOULD send OTR messages to a full JID,
-		possibly allowing the user to determine which resource they wish to start
-		an encrypted session with. Furthermore, if a client receives a request to
-		start an OTR session in a carboned message (due to a server which does not
-		support the aforementioned "private" directive, or a client which does not
-		set it), it SHOULD be silently ignored.
+		&rfc5122; defines a Uniform Resource Identifier (URI) and Internationalized
+		Resource Identifier (IRI) scheme for XMPP entities, and &xep0147; defines
+		various query components for use with XMPP URI's. When an entity has an
+		associated OTR fingerprint it's URI is often formed with "otr-fingerprint"
+		in the query string. Eg.
+
+    <example caption='OTR Fingerprint'>
+xmpp:feste@allfools.lit?otr-fingerprint=AEA4D503298797D4A4FC823BC1D24524B4C54338
+    </example>
 	</p>
-</section1>
-<section1 topic='Identity and Key Management'>
 	<p>
-		Because OTR sessions are always one-to-one, it is possible to have many
-		OTR sessions open to different resources of the same account. This means
-		that all OTR sessions should be associated with the peers full JID, and
-		resource parts should be used to choose an OTR session when sending to s
+		The &REGISTRAR; maintains a registry of queries and key-value pairs for use
+		in XMPP URIs at &QUERYTYPES;. As of the date this document was authored,
+		the 'otr-fingerprint' query string has not been formally defined and has
+		therefore is not officially recognized by the registrar.
 	</p>
 </section1>
 <section1 topic='Acknowledgements' anchor='acks'>
@@ -238,6 +248,11 @@ xmpp:feste@allfools.lit?otr-fingerprint=AEA4D503298797D4A4FC823BC1D24524B4C54338
 	</p>
 </section1>
 <section1 topic='Security Considerations' anchor='security'>
+	<p>
+		While this document describes an existing protocol which is streamed over
+		XMPP and therefore does not introduce any new security concerns itself, it
+		is worth mentioning a few security issues with the underlying OTR protocol:
+	</p>
 	<p>
 		Because Diffie-Hellman (D-H) key exchange is unauthenticated, the initial
 		D-H exchange which sets up the encrypted channel is vulnerable to a
@@ -259,8 +274,8 @@ xmpp:feste@allfools.lit?otr-fingerprint=AEA4D503298797D4A4FC823BC1D24524B4C54338
 			</link>&gt;
 		</note>.
 		This puts generating SHA-1 collisions well within the reach of governments
-		and well funded criminals. In this authors opinion, there are no
-		theoretical vulnerabilities, and SHA-1 should be treated as compromised.
+		and well funded criminal organizations. In this authors opinion, there are
+		no theoretical vulnerabilities, and SHA-1 should be treated as compromised.
 	</p>
 </section1>
 <section1 topic='IANA Considerations' anchor='iana'>
