@@ -144,76 +144,78 @@
 		a payload, and should just be the initialization string by itself.
 	</p>
 </section1>
-<section1 topic='Message Construction and Decoding'>
-	<p>
-		When sending a message encrypted with OTR, it is RECOMMENDED to encrypt
-		only the text node of the &lt;body/&gt; element (the message itself).
-		However, there are some clients in the wild which will encrypt the entire
-		contents of the &lt;body/&gt; element, including sub-nodes. Because of
-		this behavior, it is RECOMMENDED that clients decrypt and expand any OTR
-		messages inside of the body element before re-processing the element as a
-		whole. Clients that support OTR MUST be tolerant of encrypted strings which
-		expand to XML, and those which expand to plain text messages.
-	</p>
-</section1>
-<section1 topic='Routing'>
-	<p>
-		XMPP is designed so that the client needs to know very little about where
-		and how a message will be routed. Generally, clients are encouraged to send
-		messages to the bare JID and allow the server to route the messages as it
-		sees fit. However, OTR requires that messages be sent to a particular
-		resource. Therefore clients SHOULD send OTR messages to a full JID,
-		possibly allowing the user to determine which resource they wish to start
-		an encrypted session with. Furthermore, if a client receives a request to
-		start an OTR session in a carboned message (due to a server which does not
-		support the aforementioned "private" directive, or a client which does not
-		set it), it SHOULD be silently ignored.
-	</p>
-</section1>
-<section1 topic='Message Processing'>
-	<p>
-		&xep0334; defines a set of hints for how messages should be handled by XMPP
-		servers. These hints are not hard and fast rules, but suggestions which
-		the servers may or may not choose to follow. Best practice is to include
-		the following hints on all OTR messages:
+<section1 topic='OTR Messages'>
+	<section2 topic='Construction and Decoding'>
+		<p>
+			When sending a message encrypted with OTR, it is RECOMMENDED to encrypt
+			only the text node of the &lt;body/&gt; element (the message itself).
+			However, there are some clients in the wild which will encrypt the entire
+			contents of the &lt;body/&gt; element, including sub-nodes. Because of
+			this behavior, it is RECOMMENDED that clients decrypt and expand any OTR
+			messages inside of the body element before re-processing the element as a
+			whole. Clients that support OTR MUST tolerate encrypted payloads which
+			expand to XML, and those which expand to plain text messages.
+		</p>
+	</section2>
+	<section2 topic='Routing'>
+		<p>
+			XMPP is designed so that the client needs to know very little about where
+			and how a message will be routed. Generally, clients are encouraged to
+			send messages to the bare JID and allow the server to route the messages
+			as it sees fit. However, OTR requires that messages be sent to a
+			particular resource. Therefore clients SHOULD send OTR messages to a full
+			JID, possibly allowing the user to determine which resource they wish to
+			start an encrypted session with. Furthermore, if a client receives a
+			request to start an OTR session in a carboned message (due to a server
+			which does not support the aforementioned "private" directive, or a
+			client which does not set it), it SHOULD be silently ignored.
+		</p>
+	</section2>
+	<section2 topic='Processing Hints'>
+		<p>
+			&xep0334; defines a set of hints for how messages should be handled by
+			XMPP servers. These hints are not hard and fast rules, but suggestions
+			which the servers may or may not choose to follow. Best practice is to
+			include the following hints on all OTR messages:
 
-    <code><![CDATA[
-<no-copy xmlns="urn:xmpp:hints"/>
-<no-permanent-store xmlns="urn:xmpp:hints"/>
-<no-permanent-storage xmlns="urn:xmpp:hints"/>
-    ]]></code>
-
-		Note that "no-permanent-storage" and "no-permanent-store" are both included
-		because at the time of this writing there is some confusion in XEP-0334
-		and among clients and servers about which variant should be used. If
-		XEP-0334's hints differ from those defined above, XEP-0334 SHOULD be
-		considered authoritative.
-	</p>
-
-	<p>
-		Similarly the "private" directive from &xep0280; should also be included
-		to indicate that carbons are not necessary (since no other resource will
-		be able to read the message):
-
-    <code><![CDATA[
-<private xmlns="urn:xmpp:carbons:2"/>
-    ]]></code>
-
-		All together, an example OTR message might look like this (with the
-		majority of the body stripped out for readability):
-
-		<example caption='OTR message with processing hints'><![CDATA[
-<message
-	  from='malvolio@stewardsguild.lit/countesshousehold'
-	  to='olivia@countess.lit/veiled'>
-	<body>?OTR?v23?...</body>
+	    <code><![CDATA[
 	<no-copy xmlns="urn:xmpp:hints"/>
 	<no-permanent-store xmlns="urn:xmpp:hints"/>
 	<no-permanent-storage xmlns="urn:xmpp:hints"/>
+	    ]]></code>
+	
+			Note that "no-permanent-storage" and "no-permanent-store" are both
+			included because at the time of this writing there is some confusion in
+			XEP-0334 and among clients and servers about which variant should be
+			used. If XEP-0334's hints differ from those defined above, XEP-0334
+			SHOULD be considered authoritative.
+		</p>
+	
+		<p>
+			Similarly the "private" directive from &xep0280; should also be included
+			to indicate that carbons are not necessary (since no other resource will
+			be able to read the message):
+
+	    <code><![CDATA[
 	<private xmlns="urn:xmpp:carbons:2"/>
-</message>
-		]]></example>
-	</p>
+	    ]]></code>
+	
+			All together, an example OTR message might look like this (with the
+			majority of the body stripped out for readability):
+
+			<example caption='OTR message with processing hints'><![CDATA[
+	<message
+		  from='malvolio@stewardsguild.lit/countesshousehold'
+		  to='olivia@countess.lit/veiled'>
+		<body>?OTR?v23?...</body>
+		<no-copy xmlns="urn:xmpp:hints"/>
+		<no-permanent-store xmlns="urn:xmpp:hints"/>
+		<no-permanent-storage xmlns="urn:xmpp:hints"/>
+		<private xmlns="urn:xmpp:carbons:2"/>
+	</message>
+			]]></example>
+		</p>
+	</section2>
 </section1>
 <section1 topic='Use in XMPP URIs'>
 	<p>
@@ -236,15 +238,18 @@ xmpp:feste@allfools.lit?otr-fingerprint=AEA4D503298797D4A4FC823BC1D24524B4C54338
 </section1>
 <section1 topic='Acknowledgements' anchor='acks'>
 	<p>
-		Thanks to Daniel Gultsch for his excellent document on the pitfalls of
-		implementing OTR
+		Thanks to Daniel Gultsch for his excellent
+		<link url='https://github.com/siacs/Conversations/blob/development/docs/observations.md'>
+			document
+		</link>
 		<note>
 			Daniel Gultsch (Retreived on 2015-07-29). "Observations on Imlementing
 			XMPP"
 			&lt;<link url='https://github.com/siacs/Conversations/blob/development/docs/observations.md'>
 				https://github.com/siacs/Conversations/blob/development/docs/observations.md
 			</link>&gt;
-		</note>.
+		</note>
+		on the pitfalls of implementing OTR.
 	</p>
 </section1>
 <section1 topic='Security Considerations' anchor='security'>
