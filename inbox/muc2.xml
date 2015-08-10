@@ -35,7 +35,7 @@
   </revision>
 </header>
 <section1 topic='Introduction' anchor='intro'>
-  <p>** this text is in the wrong place ** MUC exists and works, but has a number of sharp edges, and doesn't map well onto some modern use cases. This spec defines a protocol that can address current requirements, is hopefully flexible enough to also address future requirements in this area, and that builds on existing XMPP mechanisms such as pubsub and MAM to minimise the work required to implement it (being less work to implement for clients and servers than MUC, if they already implement the dependencies).</p>
+  <p>** this text is in the wrong place ** MUC exists and works, but has a number of sharp edges, and doesn't map well onto some modern use cases. This spec defines a protocol that can address current requirements, is hopefully flexible enough to also address future requirements in this area, and that builds on existing XMPP mechanisms such as PubSub and MAM to minimise the work required to implement it (being less work to implement for clients and servers than MUC, if they already implement the dependencies).</p>
 </section1>
 
 <section1 topic='Requirements' anchor='reqs'>
@@ -50,11 +50,11 @@
   
 <section1 topic="Relationship to MUC" anchor="oldmuc">
   <p>
-    This specification is intended as a replacement for MUC specified in XEP-0045, refernced here as MUC.  There are a number of drivers for this specicification:
+    This specification is intended as a replacement for MUC specified in XEP-0045, referenced here as MUC.  There are a number of drivers for this specification:
   </p>
   <ol start="1.">
     <li>It is not practical to address a number of the requirements listed above with MUC or extensions to MUC. </li>
-    <li>MUC was developed as a complete service.   Subsequent to MUC,  PubSub and MAM have been developed and it is desirable that mult-user chat utilizes these building blocks.</li>
+    <li>MUC was developed as a complete service.   Subsequent to MUC,  PubSub and MAM have been developed and it is desirable that multi-user chat utilizes these building blocks.</li>
   </ol>
   <p>
     It is anticipated that there will significant co-existence with MUC and this specification is designed so that:
@@ -68,14 +68,14 @@
 
 <section1 topic='Concepts' anchor='reqs'>
   <p>Domain hosting rooms, muc2.example.com.
-     Each room a pubsub service (room@muc2.example.com).
+     Each room a PubSub service (room@muc2.example.com).
      Several well-known nodes comprise the room.
      One node for subject changes.
      One node for messages.
      Affiliations of nodes tied together somehow (Central affiliation list, and then by reference?).
      Presence in a node.
      Each node in MAM.
-     Resync by doing a MAM query across all the nodes you care about to process diffs (also for 'last 100 messages'), or just a full fetch of pubsub items (e.g. for current presence).
+     Resync by doing a MAM query across all the nodes you care about to process diffs (also for 'last 100 messages'), or just a full fetch of PubSub items (e.g. for current presence).
      Addressing and nicknames are split. Changing nicknames doesn't affect addresses. In a non-anonymous room, full JIDs are probably used. In an anonymous room, the room will have to magic them away.
      </p>
 </section1>
@@ -86,22 +86,25 @@
   </p>
   <section2 topic="MUC2 and PubSub" anchor="basic pubsub">
     <p>
-      MUC2 will be based upon domains provding an XMPP MUC2 service.  So a domain chat.shakespeare.lit would be used to provide the example MUC room.  Client communications with the MUC2 service follow XEP-0060 PubSub and are required to conform to this specification. However, this specification is not simply an application that uses PubSub which can be implemented purely as a PubSub client, such as Form Discovery and Publishing specified in XEP-0346.  With MUC2 there is server side processing in addition to XEP-0060.  For example, when a message is published the message made available to subscribers may be different to the original message as a comsquence of additionl processing performed according to this XEP.   
+      MUC2 is based upon domains proving an XMPP MUC2 service.  So a domain chat.shakespeare.lit would be used to provide the example MUC room and is a MUC2 domain. Note that although PubSub communication is used,  a domain used for MUC2 is a MUC2 domain and not a PubSub domain.   
     </p>
     <p>
-      An XMPP PubSub service provides a set of named nodes.   Each MUC room is provided by a number of these nodes.  The core node associated with a room holds messages to the MUC room.   To send a message to a MUC room, a user simply publishes the message onto the core node.   The message is then published to all subcribers of the node.   This is how MUC2 provides primary message distribution.
+      Every MUC2 room is an addressable PubSub service, that will be addressed by an XMPP client using a bare JID.   For example, coven@chat.shakespeare.lit is an addressable PubSub service.  Client communications with the MUC2 service follow XEP-0060 PubSub and are required to conform to this specification. However, this specification is not simply an application that uses PubSub which can be implemented purely as a PubSub client, such as Form Discovery and Publishing specified in XEP-0346.  With MUC2 there is server side processing in addition to XEP-0060.  For example, when a message is published the message made available to subscribers may be different to the original message as a consequence of additional processing performed according to this XEP.   
+    </p>
+    <p>
+      Each MUC room is an XMPP PubSub service provides and provides a set of named nodes that provide various MUC2 capabilities.   The name of the node correspondes to the function provided by the node.  The core node associated with a room holds messages to the MUC room.   To send a message to a MUC room, a user simply publishes the message onto the core node.   The message is then published to all subscribers of the node.   This is how MUC2 provides primary message distribution.
     </p>
   </section2>
-  <section2 topic="Node Naming Convetions" anchor="node naming">
+  <section2 topic="Node Naming Conventions" anchor="node naming">
     <p>
-      A MUC room is provided by a set of PubSub nodes.  Nodes are named with the syntax: "muc/" &lt;room name&gt; "/" &lt; node type&gt;.   For example the core node of the example room would be "muc/coven/core".  The following node types are defined in this specification:
+      A MUC room is provided by a set of PubSub nodes.  Nodes are named with simple strings that refflect the  The following node types are defined in this specification:
     </p>
     <ul>
       <li>"core":  The node used for messages</li>
       <li>"subject":  The active subject of the MUC room.</li>
       <li>"config":  Room configuration and access information.</li>
       <li>"roster": List of visible active room members.</li>
-      <li>*** Need to discuss with Kev before digging any deeper</li>
+ 
     </ul>
   </section2>
   <section2 topic="MAM" anchor="mam use">
