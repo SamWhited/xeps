@@ -1,3 +1,17 @@
+<!--
+
+- add note about not mapping ice-options because we don't need it
+- foundation is wrong data type (should be xs:string)
+- make id and generation optional (e.g., don't need generation for ice restarts)
+- make <transport/> extensible via xs:any
+- mention that transport name is case-insensitive in Jingle, but uppercase in SDP
+- check with Emil on trickle compatibility
+- add TCP candidate type (RFC 6544) per http://mail.jabber.org/pipermail/jingle/2014-May/002064.html
+- change title from ICE to ICE-UDP, but retain namespace name
+- add signaling for ICE completed state, cf. WebRTC / ORTC
+
+-->
+
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE xep SYSTEM 'xep.dtd' [
   <!ENTITY % ents SYSTEM 'xep.ent'>
@@ -12,6 +26,7 @@
   &LEGALNOTICE;
   <number>0176</number>
   <status>Draft</status>
+  <interim/>
   <type>Standards Track</type>
   <sig>Standards</sig>
   <approver>Council</approver>
@@ -364,7 +379,7 @@ INITIATOR                              RESPONDER
       </tr>
       <tr>
         <td>generation</td>
-        <td>An index, starting at 0, that enables the parties to keep track of updates to the candidate throughout the life of the session. For details, see the <link url='#protocol-restarts'>ICE Restarts</link> section of this document.</td>
+        <td>An index, starting at 0, that enables the parties to keep track of updates to the candidate throughout the life of the session. For details, see the <link url='#protocol-restart'>ICE Restarts</link> section of this document.</td>
         <td>extended name/value pair in a=candidate line</td>
         <td>0</td>
       </tr>
@@ -1012,9 +1027,9 @@ Romeo                    Gateway                    Juliet
     <xs:simpleContent>
       <xs:extension base='empty'>
         <xs:attribute name='component' type='xs:unsignedByte' use='required'/>
-        <xs:attribute name='foundation' type='xs:unsignedByte' use='required'/>
-        <xs:attribute name='generation' type='xs:unsignedByte' use='required'/>
-        <xs:attribute name='id' type='xs:NCName' use='required'/>
+        <xs:attribute name='foundation' type='xs:string' use='required'/>
+        <xs:attribute name='generation' type='xs:unsignedByte' use='optional'/>
+        <xs:attribute name='id' type='xs:NCName' use='optional'/>
         <xs:attribute name='ip' type='xs:string' use='required'/>
         <xs:attribute name='network' type='xs:unsignedByte' use='required'/>
         <xs:attribute name='port' type='xs:unsignedShort' use='required'/>
@@ -1056,6 +1071,6 @@ Romeo                    Gateway                    Juliet
   ]]></code>
 </section1>
 <section1 topic='Acknowledgements' anchor='ack'>
-  <p>Thanks to Diana Cionoiu, Olivier Cr&#234;te, Tim Julien, Steffen Larsen, Robert McQueen, Mike Ruprecht, Justin Uberti, Unnikrishnan Vikrama Panicker, and Paul Witty for their feedback.</p>
+  <p>Thanks to Diana Cionoiu, Olivier Cr&#234;te, Philipp Hancke, Tim Julien, Steffen Larsen, Robert McQueen, Unnikrishnan Vikrama Panicker, Mike Ruprecht, Lance Stout, Justin Uberti, and Paul Witty for their feedback.</p>
 </section1>
 </xep>
