@@ -1,3 +1,22 @@
+<!--
+
+- add Opus examples
+- move the SDP mapping to a separate XEP
+- add reference to trickle ICE (also in 176)
+- don't trickle transports until you receive response to session-initiate?
+- add <required/> crypto element to schema
+- Section 7: first check for the <required/> element
+- new spec for encryption (point to SRTP-SDES, ZRTP, DTLS-SCTP)
+- disco feature for SDES
+- fix up RTP profile text
+- schema extensibility
+- add note about DTMF
+- apply http://hancke.name/jabber/jingle-rtcpmux.patch with schema fix
+- rtcp-rsize is not supported, but reference 5506 (you can do it if you'd like)
+- get rid of <active/> element
+
+-->
+
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE xep SYSTEM 'xep.dtd' [
   <!ENTITY % ents SYSTEM 'xep.ent'>
@@ -42,6 +61,17 @@
   &seanegan;
   &robmcqueen;
   &diana;
+  <revision>
+    <version>1.1rc1</version>
+    <date>2015-02-25</date>
+    <initials>psa</initials>
+    <remark>
+      <ul>
+        <li>Removed &;lt;active/&gt; informational message, since it is unnecessary given &lt;unhold/&gt; and &lt;unmute/&gt;.</li>
+        <li>Corrected several examples (e.g., old ice-udp namespaces).</li>
+      </ul>
+    </remark>
+  </revision>
   <revision>
     <version>1.1</version>
     <date>2009-12-23</date>
@@ -674,22 +704,6 @@ delivery-method=inline; configuration=somebase16string;
 <section1 topic='Informational Messages' anchor='info'>
   <p>Informational messages can be sent by either party within the context of Jingle to communicate the status of a Jingle RTP session, device, or principal. The informational message MUST be an IQ-set containing a &JINGLE; element of type "session-info", where the informational message is a payload  element qualified by the 'urn:xmpp:jingle:apps:rtp:info:1' namespace. The following payload elements are defined. <note>A &lt;trying/&gt; element (equivalent to the SIP 100 Trying response code) is not necessary, since each session-level message is acknowledged via XMPP IQ semantics.</note></p>
   <p>Note: Because an informational message is sent in an IQ-set, the receiving party MUST return either an IQ-result or an IQ-error (normally an IQ-result simply to acknowledge receipt).</p>
-  <section2 topic='Active' anchor='info-active'>
-    <p>The &lt;active/&gt; payload indicates that the principal or device is again actively participating in the session after having been on mute or having put the other party on hold. The &lt;active/&gt; element applies to all aspects of the session, and thus does not possess a 'name' attribute.</p>
-    <example caption="Responder sends active message"><![CDATA[
-<iq from='juliet@capulet.lit/balcony'
-    id='yh3gr714'
-    to='romeo@montague.lit/orchard'
-    type='set'>
-  <jingle xmlns='urn:xmpp:jingle:1'
-          action='session-info'
-          initiator='romeo@montague.lit/orchard'
-          sid='a73sjjvkla37jfea'>
-    <active xmlns='urn:xmpp:jingle:apps:rtp:info:1'/>
-  </jingle>
-</iq>
-    ]]></example>
-  </section2>
   <section2 topic='Hold' anchor='info-hold'>
     <p>The &lt;hold/&gt; payload indicates that the principal is temporarily not listening for media from the other party. It is RECOMMENDED for the parties to handle informational &lt;hold/&gt; messages as follows (where the holdee is the party that receives the hold message and the holder is the party that sends the hold message):</p>
     <ul>
@@ -1490,7 +1504,7 @@ Romeo                         Juliet
         <payload-type id='32' name='MPV' clockrate='90000'/>
         <bandwidth type='AS'>128</bandwidth>
       </description>
-      <transport xmlns='urn:xmpp:jingle:transports:ice-udp:0'/>
+      <transport xmlns='urn:xmpp:jingle:transports:ice-udp:1'/>
     </content>
   </jingle>
 </iq>
@@ -1537,7 +1551,7 @@ Romeo                         Juliet
         <payload-type id='101' name='H263-1998' clockrate='90000'/>
         <payload-type id='102' name='H263-2000' clockrate='90000'/>
       </description>
-      <transport xmlns='urn:xmpp:jingle:transports:ice-udp:0'/>
+      <transport xmlns='urn:xmpp:jingle:transports:ice-udp:1'/>
     </content>
     <reason>
       <failed-application/>
@@ -1566,7 +1580,7 @@ Romeo                         Juliet
         </payload-type>
         <bandwidth type='AS'>128</bandwidth>
       </description>
-      <transport xmlns='urn:xmpp:jingle:transports:ice-udp:0'/>
+      <transport xmlns='urn:xmpp:jingle:transports:ice-udp:1'/>
     </content>
   </jingle>
 </iq>
