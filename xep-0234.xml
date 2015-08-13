@@ -269,7 +269,7 @@ Initiator                    Responder
 </iq>
   ]]></example>
   <p>Note: As in <cite>XEP-0096</cite>, inclusion of the &lt;range/&gt; child of the &lt;file/&gt; element indicates that the initiatior supports ranged transfers as described below under <link url='#range'>Ranged Transfers</link>.</p>
-  <p>Note: Computing the hash of the file before sending it can slow down the process of file transfer, since the sending application needs to process the file twice. The sender might prefer to send the hash after the file transfer has begun, using a transport-info message as described under <link url='#hash'>Communicating the Hash</link>.</p>
+  <p>Note: Computing the hash of the file before sending it can slow down the process of file transfer, since the sending application needs to process the file twice. The sender might prefer to send the hash after the file transfer has begun, using a description-info message as described under <link url='#hash'>Communicating the Checksum or Hashing Algorithm</link>.</p>
   <p>The responder immediately acknowledges receipt of the Jingle session-initiate.</p>
   <example caption="Responder acknowledges session-initiate"><![CDATA[
 <iq from='juliet@capulet.lit/balcony'
@@ -382,14 +382,14 @@ Initiator                    Responder
 <section1 topic='Communicating the Checksum or Hashing Algorithm' anchor='hash'>
   <p>At any time during the lifetime of the file transfer session, the hosting entity (i.e., the entity where the file resides) can communicate the checksum of the file to the receiving entity.</p>
   <p>This can be done in the session-initiate message if the sender already knows the checksum, as shown above in Example 1.</p>
-  <p>After the session-initiate message, this can also be done by sending a session-info message containing a &lt;checksum/&gt; element qualified by the 'urn:xmpp:jingle:apps:file-transfer:4' namespace, which in turn contains a &lt;file/&gt; element that MUST at least contain a child element of &lt;hash/&gt; qualified by the 'urn:xmpp:hashes:1' namespace and MAY contain other elements qualified by the 'urn:xmpp:jingle:apps:file-transfer:4' namespace (e.g. &lt;name/&gt; and &lt;date/&gt;). Each &lt;hash/&gt; element contains a checksum of the file contents produced in accordance with the hashing function specified by the 'algo' attribute, which MUST be one of the functions listed in the &ianahashes;.</p>
-  <example caption="Initiator sends checksum in session-info"><![CDATA[
+  <p>After the session-initiate message, this can also be done by sending a description-info message containing a &lt;checksum/&gt; element qualified by the 'urn:xmpp:jingle:apps:file-transfer:4' namespace, which in turn contains a &lt;file/&gt; element that MUST at least contain a child element of &lt;hash/&gt; qualified by the 'urn:xmpp:hashes:1' namespace and MAY contain other elements qualified by the 'urn:xmpp:jingle:apps:file-transfer:4' namespace (e.g. &lt;name/&gt; and &lt;date/&gt;). Each &lt;hash/&gt; element contains a checksum of the file contents produced in accordance with the hashing function specified by the 'algo' attribute, which MUST be one of the functions listed in the &ianahashes;.</p>
+  <example caption="Initiator sends checksum in description-info"><![CDATA[
 <iq from='romeo@montague.lit/orchard'
     id='kqh401b5'
     to='juliet@capulet.lit/balcony'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
-          action='session-info'
+          action='description-info'
           initiator='romeo@montague.lit/orchard'
           sid='a73sjjvkla37jfea'>
     <checksum xmlns='urn:xmpp:jingle:apps:file-transfer:4'>
@@ -442,6 +442,11 @@ Initiator                    Responder
   </jingle>
 </iq>
   ]]></example>
+  <p>Note: the &lt;file/&gt; element MAY contain multiple &lt;hash/&gt; children with different values for the 'algo' attribute.</p>
+</section1>
+
+<section1 topic='Sending Multiple Files' anchor='multi'>
+  <p>A sender can offer multiple files by including one &CONTENT; element for each file.</p>
 </section1>
 
 <section1 topic='Ranged Transfers' anchor='range'>
@@ -514,7 +519,7 @@ Initiator                    Responder
     </tr>
     <tr>
       <td>description-info</td> 
-      <td>Unused</td>
+      <td>Communicating the file hash</td>
     </tr>
     <tr>
       <td>security-info</td> 
@@ -526,7 +531,7 @@ Initiator                    Responder
     </tr>
     <tr>
       <td>session-info</td> 
-      <td>Communicating the file hash</td>
+      <td>Unused</td>
     </tr>
     <tr>
       <td>session-initiate</td> 
@@ -590,7 +595,6 @@ Initiator                    Responder
   </query>
 </iq>
   ]]></example>
-  <p>As noted, if an application supports exchange of multiple files, it MUST advertise a service discovery feature of "urn:xmpp:jingle:apps:file-transfer:multi".</p>
   <p>In order for an application to determine whether an entity supports this protocol, where possible it SHOULD use the dynamic, presence-based profile of service discovery defined in &xep0115;. However, if an application has not received entity capabilities information from an entity, it SHOULD use explicit service discovery instead.</p>
 </section1>
 
@@ -615,17 +619,6 @@ Initiator                    Responder
   </section2>
   <section2 topic='Namespace Versioning' anchor='registrar-versioning'>
     &NSVER;
-  </section2>
-  <section2 topic='Service Discovery Features' anchor='registrar-features'>
-    <p>The service discovery feature for advertising support for exchange of multiple files is "urn:xmpp:jingle:apps:file-transfer:multi".</p>
-    <p>The registry submission is as follows.</p>
-    <code caption='Registry Submission'><![CDATA[
-<var>
-  <name>urn:xmpp:jingle:apps:file-transfer:multi</name>
-  <desc>Signals support for exchange of multiple files.</desc>
-  <doc>XEP-0234</doc>
-</var>
-    ]]></code>
   </section2>
   <section2 topic='Jingle Application Formats' anchor='registrar-content'>
     <p>The XMPP Registrar shall include "file-transfer" in its registry of Jingle application formats. The registry submission is as follows:</p>
@@ -685,7 +678,7 @@ Initiator                    Responder
 </section1>
 
 <section1 topic='Acknowledgements' anchor='ack'>
-  <p>Thanks to Diana Cionoiu, Olivier Crête, Viktor Fast, Philipp Hancke, Waqas Hussain, Justin Karneges, Steffen Larsen, Yann Leboulanger, Marcus Lundblad, Robert McQueen, Joe Maissel, Glenn Maynard, Ali Sabil, Sjoerd Simons, Lance Stout, Will Thompson, Matthew Wild, and Jiří Zárevúcky for their feedback.</p>
+  <p>Thanks to Diana Cionoiu, Wolfgang Colsman, Olivier Crête, Viktor Fast, Philipp Hancke, Waqas Hussain, Justin Karneges, Steffen Larsen, Yann Leboulanger, Marcus Lundblad, Robert McQueen, Joe Maissel, Glenn Maynard, Ali Sabil, Sjoerd Simons, Lance Stout, Will Thompson, Matthew Wild, and Jiří Zárevúcky for their feedback.</p>
 </section1>
 
 </xep>
