@@ -1,22 +1,3 @@
-<!--
-
-- add Opus examples
-- move the SDP mapping to a separate XEP
-- add reference to trickle ICE (also in 176)
-- don't trickle transports until you receive response to session-initiate?
-- add <required/> crypto element to schema
-- Section 7: first check for the <required/> element
-- new spec for encryption (point to SRTP-SDES, ZRTP, DTLS-SCTP)
-- disco feature for SDES
-- fix up RTP profile text
-- schema extensibility
-- add note about DTMF
-- apply http://hancke.name/jabber/jingle-rtcpmux.patch with schema fix
-- rtcp-rsize is not supported, but reference 5506 (you can do it if you'd like)
-- get rid of <active/> element
-
--->
-
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE xep SYSTEM 'xep.dtd' [
   <!ENTITY % ents SYSTEM 'xep.ent'>
@@ -63,12 +44,33 @@
   &diana;
   <revision>
     <version>1.1rc1</version>
-    <date>2015-02-25</date>
+    <date>2015-08-17</date>
     <initials>psa</initials>
     <remark>
       <ul>
-        <li>Removed &;lt;active/&gt; informational message, since it is unnecessary given &lt;unhold/&gt; and &lt;unmute/&gt;.</li>
+        <li>Removed &lt;active/&gt; informational message, since it is unnecessary given &lt;unhold/&gt; and &lt;unmute/&gt;.</li>
         <li>Corrected several examples (e.g., old ice-udp namespaces).</li>
+
+
+
+<li>
+- add Opus examples
+- move the SDP mapping to a separate XEP
+- add reference to trickle ICE (also in 176)
+- don't trickle transports until you receive response to session-initiate?
+- add &lt;required/&gt; crypto element to schema
+- Section 7: first check for the &lt;required/&gt; element
+- new spec for encryption (point to SRTP-SDES, ZRTP, DTLS-SCTP)
+- disco feature for SDES
+- fix up RTP profile text
+- schema extensibility
+- add note about DTMF
+- apply http://hancke.name/jabber/jingle-rtcpmux.patch with schema fix
+- rtcp-rsize is not supported, but reference 5506 (you can do it if you'd like)
+</li>
+
+
+
       </ul>
     </remark>
   </revision>
@@ -443,13 +445,13 @@ Initiator                    Responder
   ]]></code>
   <p>When the initiator sends a session-initiate message to the responder, the &DESCRIPTION; element includes all of the payload types that the initiator can send and/or receive for Jingle RTP, each one encapsulated in a separate &PAYLOADTYPE; element (the rules specified in &rfc3264; SHOULD be followed regarding inclusion of payload types).</p>
   <example caption="Initiation"><![CDATA[
-<iq from='romeo@montague.lit/orchard'
+<iq from='romeo@montague.example/dr4hcr0st3lup4c'
     id='ih28sx61'
-    to='juliet@capulet.lit/balcony'
+    to='juliet@capulet.example/yn0cl4bnw0yr3vym'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
           action='session-initiate'
-          initiator='romeo@montague.lit/orchard'
+          initiator='romeo@montague.example/dr4hcr0st3lup4c'
           sid='a73sjjvkla37jfea'>
     <content creator='initiator' name='voice'>
       <description xmlns='urn:xmpp:jingle:apps:rtp:1' media='audio'>
@@ -493,22 +495,22 @@ Initiator                    Responder
   <p>Upon receiving the session-initiate stanza, the responder determines whether it can proceed with the negotiation. The general Jingle error cases are specified in <cite>XEP-0166</cite> and illustrated in the <link url='#scenarios'>Scenarios</link> section of this document.</p>
   <p>If there is no immediate error, the responder acknowledges the session initiation request.</p>
   <example caption="Responder acknowledges session-initiate"><![CDATA[
-<iq from='juliet@capulet.lit/balcony'
+<iq from='juliet@capulet.example/yn0cl4bnw0yr3vym'
     id='ih28sx61'
-    to='romeo@montague.lit/orchard'
+    to='romeo@montague.example/dr4hcr0st3lup4c'
     type='result'/>
   ]]></example>
   <p>Depending on user preferences or client configuration, a user agent controlled by a human user might need to wait for the user to affirm a desire to proceed with the session before continuing. When the user agent has received such affirmation (or if the user agent can automatically proceed for any reason, e.g. because no human intervention is expected or because a human user has configured the user agent to automatically accept sessions with a given entity), it returns a Jingle session-accept message. The session-accept message SHOULD include a subset of the payload types sent by the initiator, i.e., a list of the offered payload types that the responder can send and/or receive. The list that the responder sends SHOULD retain the ID numbers specified by the initiator. The order of the &PAYLOADTYPE; elements indicates the responder's preferences, with the most-preferred type first.</p>
   <p>In the following example, we imagine that the responder supports Speex at a clockrate of 8000 but not 16000, G729, and PCMA but not PMCU. Therefore the responder returns only two payload types (since PMCA was not offered).</p>
   <example caption="Responder definitively accepts the session"><![CDATA[
-<iq from='juliet@capulet.lit/balcony'
+<iq from='juliet@capulet.example/yn0cl4bnw0yr3vym'
     id='i91fs6d5'
-    to='romeo@montague.lit/orchard'
+    to='romeo@montague.example/dr4hcr0st3lup4c'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
           action='session-accept'
-          initiator='romeo@montague.lit/orchard'
-          responder='juliet@capulet.lit/balcony'
+          initiator='romeo@montague.example/dr4hcr0st3lup4c'
+          responder='juliet@capulet.example/yn0cl4bnw0yr3vym'
           sid='a73sjjvkla37jfea'>
     <content creator='initiator' name='voice'>
       <description xmlns='urn:xmpp:jingle:apps:rtp:1' media='audio'>
@@ -536,9 +538,9 @@ Initiator                    Responder
   <p>If the responder supports none of the payload-types offered by the initiator, the responder SHOULD terminate the session and include a Jingle reason of &lt;failed-application/&gt;.</p>
   <p>If the responder accepts the session, the initiator acknowledges the session-accept message:</p>
   <example caption="Initiator acknowledges session acceptance"><![CDATA[
-<iq from='romeo@montague.lit/orchard'
+<iq from='romeo@montague.example/dr4hcr0st3lup4c'
     id='i91fs6d5'
-    to='juliet@capulet.lit/balcony'
+    to='juliet@capulet.example/yn0cl4bnw0yr3vym'
     type='result'/>
   ]]></example>
   <p>The initiator and responder would then attempt to establish connectivity for the data channel, Once they do, they would exchange media using any of the codecs that meet the following criteria:</p>
@@ -650,13 +652,13 @@ delivery-method=inline; configuration=somebase16string;
   </ol>
   <p>Which of these the responder does is a matter of personal security policies or client configuration.</p>
   <example caption="Responder terminates session because of invalid crypto"><![CDATA[
-<iq from='juliet@capulet.lit/balcony'
+<iq from='juliet@capulet.example/yn0cl4bnw0yr3vym'
     id='nv71c396'
-    to='romeo@montague.lit/orchard'
+    to='romeo@montague.example/dr4hcr0st3lup4c'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
           action='session-terminate'
-          initiator='romeo@montague.lit/orchard'
+          initiator='romeo@montague.example/dr4hcr0st3lup4c'
           sid='a73sjjvkla37jfea'>
     <reason>
       <security-error/>
@@ -667,13 +669,13 @@ delivery-method=inline; configuration=somebase16string;
   ]]></example>
   <p>If the responder requires encryption but the initiator did not include an &lt;encryption/&gt; element in its offer, the responder MUST reject the offer by sending a session-terminate message with a Jingle reason of &lt;security-error/&gt; and an RTP-specific condition of &lt;crypto-required/&gt;.</p>
   <example caption="Responder terminates session because crypto is required"><![CDATA[
-<iq from='juliet@capulet.lit/balcony'
+<iq from='juliet@capulet.example/yn0cl4bnw0yr3vym'
     id='nv71c396'
-    to='romeo@montague.lit/orchard'
+    to='romeo@montague.example/dr4hcr0st3lup4c'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
           action='session-terminate'
-          initiator='romeo@montague.lit/orchard'
+          initiator='romeo@montague.example/dr4hcr0st3lup4c'
           sid='a73sjjvkla37jfea'>
     <reason>
       <security-error/>
@@ -684,13 +686,13 @@ delivery-method=inline; configuration=somebase16string;
   ]]></example>
   <p>If the initiator requires encryption but the responder does not include an &lt;encryption/&gt; element in its session acceptance, the initiator MUST terminate the session with a Jingle reason of &lt;security-error/&gt; and an RTP-specific condition of &lt;crypto-required/&gt;.</p>
   <example caption="Initiator terminates session because crypto is required"><![CDATA[
-<iq from='romeo@montague.lit/orchard'
+<iq from='romeo@montague.example/dr4hcr0st3lup4c'
     id='ik3hs615'
-    to='juliet@capulet.lit/balcony'
+    to='juliet@capulet.example/yn0cl4bnw0yr3vym'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
           action='session-terminate'
-          initiator='romeo@montague.lit/orchard'
+          initiator='romeo@montague.example/dr4hcr0st3lup4c'
           sid='a73sjjvkla37jfea'>
     <reason>
       <security-error/>
@@ -713,13 +715,13 @@ delivery-method=inline; configuration=somebase16string;
       <li>The holder MAY silently drop all media that it receives from the holdee.</li>
     </ul>
     <example caption="Responder sends hold message"><![CDATA[
-<iq from='juliet@capulet.lit/balcony'
+<iq from='juliet@capulet.example/yn0cl4bnw0yr3vym'
     id='xv39z423'
-    to='romeo@montague.lit/orchard'
+    to='romeo@montague.example/dr4hcr0st3lup4c'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
           action='session-info'
-          initiator='romeo@montague.lit/orchard'
+          initiator='romeo@montague.example/dr4hcr0st3lup4c'
           sid='a73sjjvkla37jfea'>
     <hold xmlns='urn:xmpp:jingle:apps:rtp:info:1'/>
   </jingle>
@@ -727,13 +729,13 @@ delivery-method=inline; configuration=somebase16string;
     ]]></example>
     <p>When the holder wishes to end the hold state, it sends an informational payload of &lt;unhold/&gt; or &lt;active/&gt;.</p>
     <example caption="Responder ends the hold state"><![CDATA[
-<iq from='juliet@capulet.lit/balcony'
+<iq from='juliet@capulet.example/yn0cl4bnw0yr3vym'
     id='br81gd63'
-    to='romeo@montague.lit/orchard'
+    to='romeo@montague.example/dr4hcr0st3lup4c'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
           action='session-info'
-          initiator='romeo@montague.lit/orchard'
+          initiator='romeo@montague.example/dr4hcr0st3lup4c'
           sid='a73sjjvkla37jfea'>
     <unhold xmlns='urn:xmpp:jingle:apps:rtp:info:1'/>
   </jingle>
@@ -743,13 +745,13 @@ delivery-method=inline; configuration=somebase16string;
   <section2 topic='Mute' anchor='info-mute'>
     <p>The &lt;mute/&gt; payload indicates that the principal is temporarily not sending media to the other party but continuing to accept media from the other party. The &lt;mute/&gt; element MAY possess a 'name' attribute whose value specifies a particular session to be muted (e.g., muting the audio aspect but not the video aspect of a voice+video chat). If no 'name' attribute is included, the recipient MUST assume that all sessions are to be muted.</p>
     <example caption="Responder sends mute message"><![CDATA[
-<iq from='juliet@capulet.lit/balcony'
+<iq from='juliet@capulet.example/yn0cl4bnw0yr3vym'
     id='hg4891f5'
-    to='romeo@montague.lit/orchard'
+    to='romeo@montague.example/dr4hcr0st3lup4c'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
           action='session-info'
-          initiator='romeo@montague.lit/orchard'
+          initiator='romeo@montague.example/dr4hcr0st3lup4c'
           sid='a73sjjvkla37jfea'>
     <mute xmlns='urn:xmpp:jingle:apps:rtp:info:1'
           creator='responder'
@@ -759,13 +761,13 @@ delivery-method=inline; configuration=somebase16string;
     ]]></example>
     <p>To end the mute state, the party sends an informational payload of &lt;unmute/&gt; or &lt;active/&gt;.</p>
     <example caption="Responder ends the mute state"><![CDATA[
-<iq from='juliet@capulet.lit/balcony'
+<iq from='juliet@capulet.example/yn0cl4bnw0yr3vym'
     id='ms91g47c'
-    to='romeo@montague.lit/orchard'
+    to='romeo@montague.example/dr4hcr0st3lup4c'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
           action='session-info'
-          initiator='romeo@montague.lit/orchard'
+          initiator='romeo@montague.example/dr4hcr0st3lup4c'
           sid='a73sjjvkla37jfea'>
     <unmute xmlns='urn:xmpp:jingle:apps:rtp:info:1'
             creator='responder'
@@ -777,13 +779,13 @@ delivery-method=inline; configuration=somebase16string;
   <section2 topic='Ringing' anchor='info-ringing'>
     <p>The &lt;ringing/&gt; payload indicates that the device is ringing but the principal has not yet interacted with it to answer (this maps to the SIP 180 response code).</p>
     <example caption="Responder sends ringing message"><![CDATA[
-<iq from='juliet@capulet.lit/balcony'
+<iq from='juliet@capulet.example/yn0cl4bnw0yr3vym'
     id='tgr515bt'
-    to='romeo@montague.lit/orchard'
+    to='romeo@montague.example/dr4hcr0st3lup4c'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
           action='session-info'
-          initiator='romeo@montague.lit/orchard'
+          initiator='romeo@montague.example/dr4hcr0st3lup4c'
           sid='a73sjjvkla37jfea'>
     <ringing xmlns='urn:xmpp:jingle:apps:rtp:info:1'/>
   </jingle>
@@ -795,13 +797,13 @@ delivery-method=inline; configuration=somebase16string;
 <section1 topic='Exchanging Application Parameters' anchor='parameters'>
   <p>Before or during an RTP session, either party can share suggested application parameters with the other party by sending a Jingle stanza with an action of "description-info". The stanza shall contain only a &DESCRIPTION; element, which specifies suggested parameters for a given application type (e.g., a change to the height and width for display of a video stream). An example follows.</p>
   <example caption="Entity sends application parameters"><![CDATA[
-<iq from='romeo@montague.lit/orchard'
+<iq from='romeo@montague.example/dr4hcr0st3lup4c'
     id='pq6x5v37'
-    to='juliet@capulet.lit/balcony'
+    to='juliet@capulet.example/yn0cl4bnw0yr3vym'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
           action='description-info'
-          initiator='romeo@montague.lit/orchard'
+          initiator='romeo@montague.example/dr4hcr0st3lup4c'
           sid='a73sjjvkla37jfea'>
     <content creator='initiator' name='webcam'>
       <description xmlns='urn:xmpp:jingle:apps:rtp:1' media='video'>
@@ -825,17 +827,17 @@ delivery-method=inline; configuration=somebase16string;
   </ul>
   <p>An example follows.</p>
   <example caption="Service discovery information request"><![CDATA[
-<iq from='romeo@montague.lit/orchard'
+<iq from='romeo@montague.example/dr4hcr0st3lup4c'
     id='bh3vd715'
-    to='juliet@capulet.lit/balcony'
+    to='juliet@capulet.example/yn0cl4bnw0yr3vym'
     type='get'>
   <query xmlns='http://jabber.org/protocol/disco#info'/>
 </iq>
   ]]></example>
   <example caption="Service discovery information response"><![CDATA[
-<iq from='juliet@capulet.lit/balcony'
+<iq from='juliet@capulet.example/yn0cl4bnw0yr3vym'
     id='bh3vd715'
-    to='romeo@montague.lit/orchard'
+    to='romeo@montague.example/dr4hcr0st3lup4c'
     type='result'>
   <query xmlns='http://jabber.org/protocol/disco#info'>
     <feature var='urn:xmpp:jingle:1'/>
@@ -872,13 +874,13 @@ Romeo                         Juliet
     ]]></code>
     <p>The protocol flow is as follows.</p>
     <example caption="Initiator sends session-initiate"><![CDATA[
-<iq from='romeo@montague.lit/orchard'
+<iq from='romeo@montague.example/dr4hcr0st3lup4c'
     id='rg6s5134'
-    to='juliet@capulet.lit/balcony'
+    to='juliet@capulet.example/yn0cl4bnw0yr3vym'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
           action='session-initiate'
-          initiator='romeo@montague.lit/orchard'
+          initiator='romeo@montague.example/dr4hcr0st3lup4c'
           sid='a73sjjvkla37jfea'>
     <content creator='initiator' name='voice'>
       <description xmlns='urn:xmpp:jingle:apps:rtp:1' media='audio'>
@@ -919,20 +921,20 @@ Romeo                         Juliet
 </iq>
     ]]></example>
     <example caption="Responder acknowledges session-initiate"><![CDATA[
-<iq from='juliet@capulet.lit/balcony'
+<iq from='juliet@capulet.example/yn0cl4bnw0yr3vym'
     id='rg6s5134'
-    to='romeo@montague.lit/orchard'
+    to='romeo@montague.example/dr4hcr0st3lup4c'
     type='result'/>
     ]]></example>
     <p>However, the responder immediately terminates the session.</p>
     <example caption="Responder terminates the session"><![CDATA[
-<iq from='juliet@capulet.lit/balcony'
+<iq from='juliet@capulet.example/yn0cl4bnw0yr3vym'
     id='ch3vs61d'
-    to='romeo@montague.lit/orchard'
+    to='romeo@montague.example/dr4hcr0st3lup4c'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
           action='session-terminate'
-          initiator='romeo@montague.lit/orchard'
+          initiator='romeo@montague.example/dr4hcr0st3lup4c'
           sid='a73sjjvkla37jfea'>
     <reason>
       <busy/>
@@ -942,9 +944,9 @@ Romeo                         Juliet
     ]]></example>
     <p>Note: It might be wondered why the responder does not accept the session and then terminate. That order would be acceptable, too, but here we assume that the responder's client has immediate information about the responder's free/busy status (e.g., because the responder is on the phone) and therefore returns an automated busy signal without requiring user interaction.</p>
     <example caption="Initiator acknowledges termination"><![CDATA[
-<iq from='romeo@montague.lit/orchard'
+<iq from='romeo@montague.example/dr4hcr0st3lup4c'
     id='ch3vs61d'
-    to='juliet@capulet.lit/balcony'
+    to='juliet@capulet.example/yn0cl4bnw0yr3vym'
     type='result'/>
     ]]></example>
   </section2>
@@ -982,13 +984,13 @@ Romeo                         Juliet
     ]]></code>
     <p>The protocol flow is as follows.</p>
     <example caption="Initiator sends session-initiate"><![CDATA[
-<iq from='romeo@montague.lit/orchard'
+<iq from='romeo@montague.example/dr4hcr0st3lup4c'
     id='ds9864v6'
-    to='juliet@capulet.lit/balcony'
+    to='juliet@capulet.example/yn0cl4bnw0yr3vym'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
           action='session-initiate'
-          initiator='romeo@montague.lit/orchard'
+          initiator='romeo@montague.example/dr4hcr0st3lup4c'
           sid='a73sjjvkla37jfea'>
     <content creator='initiator' name='voice'>
       <description xmlns='urn:xmpp:jingle:apps:rtp:1' media='audio'>
@@ -1029,40 +1031,40 @@ Romeo                         Juliet
 </iq>
     ]]></example>
     <example caption="Responder acknowledges session-initiate"><![CDATA[
-<iq from='juliet@capulet.lit/balcony'
+<iq from='juliet@capulet.example/yn0cl4bnw0yr3vym'
     id='ds9864v6'
-    to='romeo@montague.lit/orchard'
+    to='romeo@montague.example/dr4hcr0st3lup4c'
     type='result'/>
     ]]></example>
     <example caption="Responder sends ringing message"><![CDATA[
-<iq from='juliet@capulet.lit/balcony'
+<iq from='juliet@capulet.example/yn0cl4bnw0yr3vym'
     id='ed81vd64'
-    to='romeo@montague.lit/orchard'
+    to='romeo@montague.example/dr4hcr0st3lup4c'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
           action='session-info'
-          initiator='romeo@montague.lit/orchard'
+          initiator='romeo@montague.example/dr4hcr0st3lup4c'
           sid='a73sjjvkla37jfea'>
     <ringing xmlns='urn:xmpp:jingle:apps:rtp:info:1'/>
   </jingle>
 </iq>
     ]]></example>
     <example caption="Initiator acknowledges ringing message"><![CDATA[
-<iq from='romeo@montague.lit/orchard'
+<iq from='romeo@montague.example/dr4hcr0st3lup4c'
     id='ed81vd64'
-    to='juliet@capulet.lit/balcony'
+    to='juliet@capulet.example/yn0cl4bnw0yr3vym'
     type='result'/>
     ]]></example>
     <p>As soon as possible, the responder's client sends a session-accept message to the initiator.</p>
     <example caption="Responder sends session-accept"><![CDATA[
-<iq from='juliet@capulet.lit/balcony'
+<iq from='juliet@capulet.example/yn0cl4bnw0yr3vym'
     id='lj3bf87g'
-    to='romeo@montague.lit/orchard'
+    to='romeo@montague.example/dr4hcr0st3lup4c'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
           action='session-accept'
-          initiator='romeo@montague.lit/orchard'
-          responder='juliet@capulet.lit/balcony'
+          initiator='romeo@montague.example/dr4hcr0st3lup4c'
+          responder='juliet@capulet.example/yn0cl4bnw0yr3vym'
           sid='a73sjjvkla37jfea'>
     <content creator='initiator' name='voice'>
       <description xmlns='urn:xmpp:jingle:apps:rtp:1' media='audio'>
@@ -1089,22 +1091,22 @@ Romeo                         Juliet
     ]]></example>
     <p>The initiator acknowledges the session-accept message.</p>
     <example caption="Initiator acknowledges session-accept"><![CDATA[
-<iq from='romeo@montague.lit/orchard'
+<iq from='romeo@montague.example/dr4hcr0st3lup4c'
     id='lj3bf87g'
-    to='juliet@capulet.lit/balcony'
+    to='juliet@capulet.example/yn0cl4bnw0yr3vym'
     type='result'/>
     ]]></example>
     <p>Once connectivity is established (which might necessitate the exchange of additional candidates via transport-info messages), the parties begin to exchange media. In this case they would use RTP to exchange audio using the Speex codec at a clockrate of 8000 since that is the highest-priority codec for the responder (as determined by the XML order of the &PAYLOADTYPE; children).</p>
     <p>The parties can continue the session as long as desired.</p>
     <p>Eventually, one of the parties terminates the session.</p>
     <example caption="Responder terminates the session"><![CDATA[
-<iq from='juliet@capulet.lit/balcony'
+<iq from='juliet@capulet.example/yn0cl4bnw0yr3vym'
     id='wps8b597'
-    to='romeo@montague.lit/orchard'
+    to='romeo@montague.example/dr4hcr0st3lup4c'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
           action='session-terminate'
-          initiator='romeo@montague.lit/orchard'
+          initiator='romeo@montague.example/dr4hcr0st3lup4c'
           sid='a73sjjvkla37jfea'>
     <reason>
       <success/>
@@ -1115,9 +1117,9 @@ Romeo                         Juliet
     ]]></example>
     <p>The other party then acknowledges termination of the session:</p>
     <example caption="Initiator acknowledges termination"><![CDATA[
-<iq from='romeo@montague.lit/orchard'
+<iq from='romeo@montague.example/dr4hcr0st3lup4c'
     id='wps8b597'
-    to='juliet@capulet.lit/balcony'
+    to='juliet@capulet.example/yn0cl4bnw0yr3vym'
     type='result'/>
     ]]></example>
   </section2>
@@ -1156,13 +1158,13 @@ Romeo                         Juliet
     ]]></code>
     <p>The protocol flow is as follows.</p>
     <example caption="Initiator sends session-initiate"><![CDATA[
-<iq from='romeo@montague.lit/orchard'
+<iq from='romeo@montague.example/dr4hcr0st3lup4c'
     id='vy3g641x'
-    to='juliet@capulet.lit/balcony'
+    to='juliet@capulet.example/yn0cl4bnw0yr3vym'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
           action='session-initiate'
-          initiator='romeo@montague.lit/orchard'
+          initiator='romeo@montague.example/dr4hcr0st3lup4c'
           sid='a73sjjvkla37jfea'>
     <content creator='initiator' name='voice'>
       <description xmlns='urn:xmpp:jingle:apps:rtp:1' media='audio'>
@@ -1212,41 +1214,41 @@ Romeo                         Juliet
     <p>To signal that the initiator wishes to use SRTP, the initiator's client includes keying material via the &lt;encryption/&gt; element (with one set of keying material per &lt;crypto/&gt; element). Here the initiator also signals that encryption is mandatory via the 'required' attribute.</p>
     <p>The responder immediately acknowledges the session initiation request.</p>
     <example caption="Responder acknowledges session-initiate"><![CDATA[
-<iq from='juliet@capulet.lit/balcony'
+<iq from='juliet@capulet.example/yn0cl4bnw0yr3vym'
     id='vy3g641x'
-    to='romeo@montague.lit/orchard'
+    to='romeo@montague.example/dr4hcr0st3lup4c'
     type='result'/>
     ]]></example>
     <p>If the keying material is acceptable, the responder's continues with the negotiation. If the keying material is not acceptable, the responder's client terminates the session as described under <link url='#srtp'>Negotiation of SRTP</link>.</p>
     <example caption="Responder sends ringing message"><![CDATA[
-<iq from='juliet@capulet.lit/balcony'
+<iq from='juliet@capulet.example/yn0cl4bnw0yr3vym'
     id='z2d85b6l'
-    to='romeo@montague.lit/orchard'
+    to='romeo@montague.example/dr4hcr0st3lup4c'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
           action='session-info'
-          initiator='romeo@montague.lit/orchard'
+          initiator='romeo@montague.example/dr4hcr0st3lup4c'
           sid='a73sjjvkla37jfea'>
     <ringing xmlns='urn:xmpp:jingle:apps:rtp:info:1'/>
   </jingle>
 </iq>
     ]]></example>
     <example caption="Initiator acknowledges ringing message"><![CDATA[
-<iq from='romeo@montague.lit/orchard'
+<iq from='romeo@montague.example/dr4hcr0st3lup4c'
     id='z2d85b6l'
-    to='juliet@capulet.lit/balcony'
+    to='juliet@capulet.example/yn0cl4bnw0yr3vym'
     type='result'/>
     ]]></example>
     <p>As soon as possible, the responder's client sends a session-accept message to the initiator. In this case, the session-accept message includes a &lt;crypto/&gt; element to indicate that the responder finds the offered keying material acceptable.</p>
     <example caption="Responder sends session-accept"><![CDATA[
-<iq from='juliet@capulet.lit/balcony'
+<iq from='juliet@capulet.example/yn0cl4bnw0yr3vym'
     id='ywf364b1'
-    to='romeo@montague.lit/orchard'
+    to='romeo@montague.example/dr4hcr0st3lup4c'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
           action='session-accept'
-          initiator='romeo@montague.lit/orchard'
-          responder='juliet@capulet.lit/balcony'
+          initiator='romeo@montague.example/dr4hcr0st3lup4c'
+          responder='juliet@capulet.example/yn0cl4bnw0yr3vym'
           sid='a73sjjvkla37jfea'>
     <content creator='initiator' name='voice'>
       <description xmlns='urn:xmpp:jingle:apps:rtp:1' media='audio'>
@@ -1280,22 +1282,22 @@ Romeo                         Juliet
     ]]></example>
     <p>The initiator acknowledges the session-accept action.</p>
     <example caption="Initiator acknowledges session-accept"><![CDATA[
-<iq from='romeo@montague.lit/orchard'
+<iq from='romeo@montague.example/dr4hcr0st3lup4c'
     id='ywf364b1'
-    to='juliet@capulet.lit/balcony'
+    to='juliet@capulet.example/yn0cl4bnw0yr3vym'
     type='result'/>
     ]]></example>
     <p>Once connectivity is established (which might necessitate the exchange of additional candidates via transport-info messages), the parties begin to exchange media. In this case they would use RTP to exchange audio using the Speex codec at a clockrate of 8000 since that is the highest-priority codec for the responder (as determined by the XML order of the &PAYLOADTYPE; children).</p>
     <p>The parties can continue the session as long as desired.</p>
     <p>Eventually, one of the parties terminates the session.</p>
     <example caption="Responder terminates the session"><![CDATA[
-<iq from='juliet@capulet.lit/balcony'
+<iq from='juliet@capulet.example/yn0cl4bnw0yr3vym'
     id='ws71bf94'
-    to='romeo@montague.lit/orchard'
+    to='romeo@montague.example/dr4hcr0st3lup4c'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
           action='session-terminate'
-          initiator='romeo@montague.lit/orchard'
+          initiator='romeo@montague.example/dr4hcr0st3lup4c'
           sid='a73sjjvkla37jfea'>
     <reason>
       <success/>
@@ -1306,9 +1308,9 @@ Romeo                         Juliet
     ]]></example>
     <p>The other party then acknowledges termination of the session:</p>
     <example caption="Initiator acknowledges termination"><![CDATA[
-<iq from='romeo@montague.lit/orchard'
+<iq from='romeo@montague.example/dr4hcr0st3lup4c'
     id='ws71bf94'
-    to='juliet@capulet.lit/balcony'
+    to='juliet@capulet.example/yn0cl4bnw0yr3vym'
     type='result'/>
     ]]></example>
   </section2>
@@ -1369,13 +1371,13 @@ Romeo                         Juliet
     ]]></code>
     <p>The protocol flow is as follows.</p>
     <example caption="Initiation"><![CDATA[
-<iq from='romeo@montague.lit/orchard'
+<iq from='romeo@montague.example/dr4hcr0st3lup4c'
     id='sf93gv76'
-    to='juliet@capulet.lit/balcony'
+    to='juliet@capulet.example/yn0cl4bnw0yr3vym'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
           action='session-initiate'
-          initiator='romeo@montague.lit/orchard'
+          initiator='romeo@montague.example/dr4hcr0st3lup4c'
           sid='a73sjjvkla37jfea'>
     <content creator='initiator' name='voice'>
       <description xmlns='urn:xmpp:jingle:apps:rtp:1' media='audio'>
@@ -1416,40 +1418,40 @@ Romeo                         Juliet
 </iq>
     ]]></example>
     <example caption="Responder acknowledges session-initiate request"><![CDATA[
-<iq from='juliet@capulet.lit/balcony'
+<iq from='juliet@capulet.example/yn0cl4bnw0yr3vym'
     id='sf93gv76'
-    to='romeo@montague.lit/orchard'
+    to='romeo@montague.example/dr4hcr0st3lup4c'
     type='result'/>
     ]]></example>
     <example caption="Responder sends ringing message"><![CDATA[
-<iq from='juliet@capulet.lit/balcony'
+<iq from='juliet@capulet.example/yn0cl4bnw0yr3vym'
     id='nf91g647'
-    to='romeo@montague.lit/orchard'
+    to='romeo@montague.example/dr4hcr0st3lup4c'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
           action='session-info'
-          initiator='romeo@montague.lit/orchard'
+          initiator='romeo@montague.example/dr4hcr0st3lup4c'
           sid='a73sjjvkla37jfea'>
     <ringing xmlns='urn:xmpp:jingle:apps:rtp:info:1'/>
   </jingle>
 </iq>
     ]]></example>
     <example caption="Initiator acknowledges ringing message"><![CDATA[
-<iq from='romeo@montague.lit/orchard'
+<iq from='romeo@montague.example/dr4hcr0st3lup4c'
     id='nf91g647'
-    to='juliet@capulet.lit/balcony'
+    to='juliet@capulet.example/yn0cl4bnw0yr3vym'
     type='result'/>
     ]]></example>
     <p>The responder sends a session-accept message to the initiator.</p>
     <example caption="Responder sends session-accept"><![CDATA[
-<iq from='juliet@capulet.lit/balcony'
+<iq from='juliet@capulet.example/yn0cl4bnw0yr3vym'
     id='pr93b5ga'
-    to='romeo@montague.lit/orchard'
+    to='romeo@montague.example/dr4hcr0st3lup4c'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
           action='session-accept'
-          initiator='romeo@montague.lit/orchard'
-          responder='juliet@capulet.lit/balcony'
+          initiator='romeo@montague.example/dr4hcr0st3lup4c'
+          responder='juliet@capulet.example/yn0cl4bnw0yr3vym'
           sid='a73sjjvkla37jfea'>
     <content creator='initiator' name='voice'>
       <description xmlns='urn:xmpp:jingle:apps:rtp:1' media='audio'>
@@ -1474,21 +1476,21 @@ Romeo                         Juliet
     ]]></example>
     <p>The initiator acknowledges the session-accept action.</p>
     <example caption="Initiator acknowledges session-accept"><![CDATA[
-<iq from='romeo@montague.lit/orchard'
+<iq from='romeo@montague.example/dr4hcr0st3lup4c'
     id='pr93b5ga'
-    to='juliet@capulet.lit/balcony'
+    to='juliet@capulet.example/yn0cl4bnw0yr3vym'
     type='result'/>
     ]]></example>
     <p>Once end-to-end connectivity is established (which might necessitate the exchange of additional candidates via transport-info messages), the parties begin to exchange media. In this case they would use RTP to exchange audio using the Speex codec at a clockrate of 8000 since that is the highest-priority codec for the responder (as determined by the XML order of the &PAYLOADTYPE; children).</p>
     <p>Romeo, being an amorous young man, requests to add video to the audio chat.</p>
     <example caption="Adding video"><![CDATA[
-<iq from='romeo@montague.lit/orchard'
+<iq from='romeo@montague.example/dr4hcr0st3lup4c'
     id='ij6s4198'
-    to='juliet@capulet.lit/balcony'
+    to='juliet@capulet.example/yn0cl4bnw0yr3vym'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
           action='content-add'
-          initiator='romeo@montague.lit/orchard'
+          initiator='romeo@montague.example/dr4hcr0st3lup4c'
           sid='a73sjjvkla37jfea'>
     <content creator='initiator' name='webcam'>
       <description xmlns='urn:xmpp:jingle:apps:rtp:1' media='video'>
@@ -1511,40 +1513,40 @@ Romeo                         Juliet
     ]]></example>
     <p>Juliet's client automatically acknowledges receipt and then asks her if she wants to add video.</p>
     <example caption="Acknowledging request"><![CDATA[
-<iq from='juliet@capulet.lit/balcony'
+<iq from='juliet@capulet.example/yn0cl4bnw0yr3vym'
     id='ij6s4198'
-    to='romeo@montague.lit/orchard'
+    to='romeo@montague.example/dr4hcr0st3lup4c'
     type='result'/>
     ]]></example>
     <p>However, Juliet is having a bad hair day, so she sends a content-modify message to Romeo that sets the senders to "initiator" (she doesn't mind receiving video but she doesn't want to send video).</p>
     <example caption="Responder sends content-modify"><![CDATA[
-<iq from='juliet@capulet.lit/balcony'
+<iq from='juliet@capulet.example/yn0cl4bnw0yr3vym'
     id='rh49l1k4'
-    to='romeo@montague.lit/orchard'
+    to='romeo@montague.example/dr4hcr0st3lup4c'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
           action='content-modify'
-          initiator='romeo@montague.lit/orchard'
+          initiator='romeo@montague.example/dr4hcr0st3lup4c'
           sid='a73sjjvkla37jfea'>
     <content creator='initiator' name='webcam' senders='initiator'/>
   </jingle>
 </iq>
     ]]></example>
     <example caption="Initiator acknowledges content-modify"><![CDATA[
-<iq from='romeo@montague.lit/orchard'
+<iq from='romeo@montague.example/dr4hcr0st3lup4c'
     id='rh49l1k4'
-    to='juliet@capulet.lit/balcony'
+    to='juliet@capulet.example/yn0cl4bnw0yr3vym'
     type='result'/>
     ]]></example>
     <p>Note: If the responder supports none of the payload-types offered by the initiator, the responder MUST reply to the content-add request with a content-reject; this message SHOULD include a Jingle reason of &lt;failed-application/&gt; and a list of the payload-types that the responder supports (along with an empty element for the same transport offered by the initiatior), as shown in the following example.</p>
     <example caption="Alternate flow: responder sends content-reject"><![CDATA[
-<iq from='juliet@montague.lit/balcony'
+<iq from='juliet@montague.lit/yn0cl4bnw0yr3vym'
     id='vx2s91a6'
-    to='romeo@montague.lit/orchard'
+    to='romeo@montague.example/dr4hcr0st3lup4c'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
           action='content-reject'
-          initiator='romeo@montague.lit/orchard'
+          initiator='romeo@montague.example/dr4hcr0st3lup4c'
           sid='a73sjjvkla37jfea'>
     <content creator='initiator' name='webcam'>
       <description xmlns='urn:xmpp:jingle:apps:rtp:1' media='video'>
@@ -1561,13 +1563,13 @@ Romeo                         Juliet
     ]]></example>
     <p>However, here we assume that Juliet's client supports at least one of the payload-types offered by Romeo's client, and that she Juliet accepts the offer of adding video to the session.</p>
     <example caption="Responder accepts additional content-type"><![CDATA[
-<iq from='juliet@capulet.lit/balcony'
+<iq from='juliet@capulet.example/yn0cl4bnw0yr3vym'
     id='ih481v7s'
-    to='romeo@montague.lit/orchard'
+    to='romeo@montague.example/dr4hcr0st3lup4c'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
           action='content-accept'
-          initiator='romeo@montague.lit/orchard'
+          initiator='romeo@montague.example/dr4hcr0st3lup4c'
           sid='a73sjjvkla37jfea'>
     <content creator='initiator' name='webcam'>
       <description xmlns='urn:xmpp:jingle:apps:rtp:1' media='video'>
@@ -1587,43 +1589,43 @@ Romeo                         Juliet
     ]]></example>
     <p>Romeo then acknowledges the content-accept.</p>
     <example caption="Initiator acknowledges content-accept"><![CDATA[
-<iq from='romeo@montague.lit/orchard'
+<iq from='romeo@montague.example/dr4hcr0st3lup4c'
     id='ih481v7s'
-    to='juliet@capulet.lit/balcony'
+    to='juliet@capulet.example/yn0cl4bnw0yr3vym'
     type='result'/>
     ]]></example>
     <p>If necessary, the parties then negotiate transport methods and codec parameters for video, and Romeo starts to send video to Juliet, where the video is exchanged using the Theora codec with a height of 600 pixels, a width of 800 pixels, a bandwidth limit of 128,000 kilobits per second, etc.</p>
     <p>After some number of minutes, Juliet returns and agrees to start sending video, too.</p>
     <example caption="Responder sends content-modify message"><![CDATA[
-<iq from='juliet@capulet.lit/balcony'
+<iq from='juliet@capulet.example/yn0cl4bnw0yr3vym'
     id='di492bf8'
-    to='romeo@montague.lit/orchard'
+    to='romeo@montague.example/dr4hcr0st3lup4c'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
           action='session-info'
-          initiator='romeo@montague.lit/orchard'
+          initiator='romeo@montague.example/dr4hcr0st3lup4c'
           sid='a73sjjvkla37jfea'>
     <content creator='initiator' name='webcam' senders='both'/>
   </jingle>
 </iq>
     ]]></example>
     <example caption="Initiator acknowledges content-modify message"><![CDATA[
-<iq from='romeo@montague.lit/orchard'
+<iq from='romeo@montague.example/dr4hcr0st3lup4c'
     id='di492bf8'
-    to='juliet@capulet.lit/balcony'
+    to='juliet@capulet.example/yn0cl4bnw0yr3vym'
     type='result'/>
     ]]></example>
     <p>Now the two parties would exchange audio and video in both directions.</p>
     <p>The parties can continue the session as long as desired.</p>
     <p>Other events might occur throughout the life of the session. For example, one of the parties might want to tweak the video parameters using a description-info action.</p>
     <example caption="Initiator sends changes to application parameters"><![CDATA[
-<iq from='romeo@montague.lit/orchard'
+<iq from='romeo@montague.example/dr4hcr0st3lup4c'
     id='xu3bg810'
-    to='juliet@capulet.lit/balcony'
+    to='juliet@capulet.example/yn0cl4bnw0yr3vym'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
           action='description-info'
-          initiator='romeo@montague.lit/orchard'
+          initiator='romeo@montague.example/dr4hcr0st3lup4c'
           sid='a73sjjvkla37jfea'>
     <content creator='initiator' name='webcam'>
       <description xmlns='urn:xmpp:jingle:apps:rtp:1' media='video'>
@@ -1641,20 +1643,20 @@ Romeo                         Juliet
 </iq>
     ]]></example>
     <example caption="Responder acknowledges description-info"><![CDATA[
-<iq from='juliet@capulet.lit/balcony'
+<iq from='juliet@capulet.example/yn0cl4bnw0yr3vym'
     id='xu3bg810'
-    to='romeo@montague.lit/orchard'
+    to='romeo@montague.example/dr4hcr0st3lup4c'
     type='result'/>
     ]]></example>
     <p>Eventually, one of the parties terminates the session.</p>
     <example caption="Initiator sends session-terminate"><![CDATA[
-<iq from='romeo@montague.lit/orchard'
+<iq from='romeo@montague.example/dr4hcr0st3lup4c'
     id='fl2v387j'
-    to='juliet@capulet.lit/balcony'
+    to='juliet@capulet.example/yn0cl4bnw0yr3vym'
     type='set'>
   <jingle xmlns='urn:xmpp:jingle:1'
           action='session-terminate'
-          initiator='romeo@montague.lit/orchard'
+          initiator='romeo@montague.example/dr4hcr0st3lup4c'
           sid='a73sjjvkla37jfea'>
     <reason>
       <success/>
@@ -1664,9 +1666,9 @@ Romeo                         Juliet
 </iq>
     ]]></example>
     <example caption="Responder acknowledges session-terminate"><![CDATA[
-<iq from='juliet@capulet.lit/balcony'
+<iq from='juliet@capulet.example/yn0cl4bnw0yr3vym'
     id='fl2v387j'
-    to='romeo@montague.lit/orchard'
+    to='romeo@montague.example/dr4hcr0st3lup4c'
     type='result'/>
     ]]></example>
   </section2>
