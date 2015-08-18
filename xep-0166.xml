@@ -7,7 +7,7 @@
 <xep>
 <header>
   <title>Jingle</title>
-  <abstract>This specification defines an XMPP protocol extension for initiating and managing peer-to-peer media sessions between two XMPP entities in a way that is interoperable with existing Internet standards. The protocol provides a pluggable model that enables the core session management semantics (compatible with SIP and WebRTC) to be used for a wide variety of application formats (e.g., voice chat, video chat, file transfer) and with a wide variety of transport methods (e.g., TCP, UDP, and ICE).</abstract>
+  <abstract>This specification defines an XMPP protocol extension for initiating and managing media sessions between two XMPP entities in a way that is interoperable with existing Internet standards. The protocol provides a pluggable model that enables the core session management semantics (compatible with SIP and WebRTC) to be used for a wide variety of application formats (e.g., voice chat, video chat, file transfer) and with a wide variety of transport methods (e.g., TCP, UDP, and ICE).</abstract>
   &LEGALNOTICE;
   <number>0166</number>
   <status>Draft</status>
@@ -39,7 +39,7 @@
   &hildjj;
   <revision>
     <version>1.2rc1</version>
-    <date>2015-07-27</date>
+    <date>2015-08-17</date>
     <initials>psa</initials>
     <remark>
       <ul>
@@ -389,7 +389,7 @@
   </revision>
 </header>
 <section1 topic='Introduction' anchor='intro'>
-  <p>The purpose of Jingle is to enable one-to-one, peer-to-peer media sessions between XMPP entities, where the negotiation occurs over the XMPP signalling path and the relevant session data (e.g., audio or video) is exchanged over a media path that is usually a dedicated non-XMPP transport. In essence, Jingle provides the same functionality as the "offer/answer" model defined in &rfc3264;, except that XMPP provides a way to discover the capabilities of the intended recipient (via &xep0030; and &xep0115;) and thus avoids the "bundle" problem described in &bundle;.</p>
+  <p>The purpose of Jingle is to enable the negotiation and management of media sessions between XMPP entities, where the negotiation and management occur over the XMPP signalling path and the relevant session data (e.g., audio or video) is exchanged over a media path that is usually a dedicated non-XMPP transport. In essence, Jingle provides the same functionality as the "offer/answer" model defined in &rfc3264;, except that XMPP provides a way to discover the capabilities of the intended recipient (via &xep0030; and &xep0115;) and thus avoids the "bundle" problem described in &bundle;.</p>
   <p>Jingle is designed in a modular way:</p>
   <ul>
     <li><p>Developers can easily plug in support for a wide variety of application formats, such as voice and video chat (see &xep0167;) or file transfer (see &xep0234;).</p></li>
@@ -397,14 +397,14 @@
     <li><p>This modular approach also extends to the security preconditions that need to be met before application data can be exchanged over a given transport, such as negotiation of Transport Layer Security (TLS; &rfc5246;) for streaming transports and negotiation of Datagram Transport Layer Security (DTLS; &rfc4347;) for datagram transports.</p></li>
   </ul>
   <p>It is expected that most application formats, transport methods, and security preconditions will be documented in specifications produced by the &XSF; or the &IETF;; however, developers can also define proprietary methods for custom functionality.</p>
-  <p>Although Jingle provides a general framework for session management, the original target application for Jingle was simple voice and video chat. We stress the word "simple". The purpose of Jingle was not to build a full-fledged telephony application that supports call waiting, call forwarding, call transfer, hold music, IVR systems, find-me-follow-me functionality, conference calls, and the like. These features are of interest to some user populations, but adding support for them to the core Jingle layer would introduce unnecessary complexity into a technology that is designed for simple but generalized session negotiation.</p>
-  <p>Furthermore, Jingle is not intended to supplant or replace existing Internet technologies based on the Session Initiation Protocol (SIP; &rfc3261;). Because dual-stack XMPP+SIP clients are difficult to build (although see &rfc7081;), Jingle was designed as a pure XMPP signalling protocol. However, Jingle is at the same time designed to interwork with SIP so that the millions of deployed XMPP clients can be added onto existing Voice over Internet Protocol (VoIP) networks, rather than limiting XMPP users to a separate and distinct network.</p>
+  <p>Although Jingle provides a general framework for session management, the original target application for Jingle was simple voice and video chat. We stress the word "simple". The purpose of Jingle was not to build a full-fledged telephony application with call waiting, call forwarding, call transfer, hold music, IVR systems, find-me-follow-me functionality, conference calls, and the like. These features are of interest to some user populations, but adding support for them to the core Jingle layer would introduce unnecessary complexity into a technology that is designed for simple but generalized session negotiation.</p>
+  <p>Furthermore, Jingle is not intended to supplant or replace existing Internet technologies based on the Session Initiation Protocol (SIP; &rfc3261;). Because dual-stack XMPP+SIP clients are difficult to build (although see &rfc7081;), Jingle was designed as a pure XMPP signalling protocol. However, Jingle was also designed to interwork with SIP (such interworking is described in &stoxmedia;).</p>
   <p>By itself Jingle supports only one-to-one session negotiation. For multiparty sessions, Jingle can be combined with &xep0045; (whereby the chat room acts as a Jingle endpoint) or other technologies.</p>
   <p>Finally, Jingle is compatible with and is actively used as the signaling layer for both &w3webrtc; and &w3ortc;, which enable realtime media support in Web browsers and mobile devices.</p>
 </section1>
 <section1 topic='How It Works' anchor='howitworks'>
   <p>This section provides a friendly introduction to Jingle.</p>
-  <p>In essence, Jingle enables two XMPP entities (e.g., romeo@montague.example and juliet@capulet.example) to set up, manage, and tear down a multimedia session. The negotiation takes place over XMPP, and the media transfer typically takes place outside of XMPP. A simplified session flow would be as follows: <note>Naturally, more complex scenarios are possible; such scenarios are described in other specifications, such as <cite>XEP-0167</cite> for voice and video chat.</note></p>
+  <p>In essence, Jingle enables two XMPP entities (e.g., romeo@montague.example and juliet@capulet.example) to negotiate and manage a multimedia session. The negotiation takes place over XMPP, and the media transfer typically takes place outside of XMPP. A simplified session flow would be as follows: <note>Naturally, more complex scenarios are possible; such scenarios are described in other specifications, such as <cite>XEP-0167</cite> for voice and video chat.</note></p>
   <code><![CDATA[
 Romeo                         Juliet
   |                             |
@@ -424,7 +424,7 @@ Romeo                         Juliet
   |---------------------------->|
   |                             |
   ]]></code>
-  <p>To illustrate the basic flow, we show a truncated example with example application formats and transport methods (skipping non-essential steps to enforce the most essential concepts and ignoring security preconditions for now).</p>
+  <p>To illustrate the basic flow, we show a truncated flow with example application formats and transport methods (skipping non-essential steps to enforce the most essential concepts and ignoring security preconditions for now).</p>
   <example caption="Initiator sends session-initiate"><![CDATA[
 <iq from='romeo@montague.example/dr4hcr0st3lup4c'
     id='zid615d9'
@@ -601,7 +601,7 @@ Romeo                         Juliet
 <section1 topic='Requirements' anchor='reqs'>
   <p>The protocol defined herein is designed to meet the following requirements:</p>
   <ol>
-    <li>Make it possible to manage a wide variety of peer-to-peer sessions (including but not limited to voice and video) within XMPP.</li>
+    <li>Make it possible to manage a wide variety of media sessions (including but not limited to voice and video) within XMPP.</li>
     <li>When a peer-to-peer connection cannot be negotiated, make it possible to fall back to relayed communications.</li>
     <li>Clearly separate the signalling channel (XMPP) from the data channel.</li>
     <li>Clearly separate the application format (e.g., RTP audio) from the transport method (e.g., UDP).</li>
@@ -1755,7 +1755,7 @@ PENDING  o-----------------------+   |
 </section1>
 
 <section1 topic='History' anchor='history'>
-  <p>Until Jingle was developed, there existed no widely-adopted standard for initiating and managing peer-to-peer interactions between XMPP entities. Although several large service providers and Jabber client teams had written and implemented their own proprietary XMPP extensions for peer-to-peer signalling (usually only for voice), those technologies were not open and did not always take into account requirements to interoperate with SIP-based technologies. The only existing open protocol was &xep0111;, which made it possible to initiate and manage peer-to-peer sessions, but which did not provide enough of the key signalling semantics to be easily implemented in Jabber/XMPP clients. <note>It is true that TINS made it relatively easy to implement an XMPP-to-SIP gateway; however, in line with the long-time Jabber philosophy of "simple clients, complex servers", it would be better to force complexity onto the server-side gateway and to keep the client as simple as possible.</note></p>
+  <p>Until Jingle was developed, there existed no widely-adopted standard for negotiating and managing media sessions between XMPP entities. Although several large service providers and Jabber client teams had written and implemented their own proprietary XMPP extensions for media signalling (usually only for voice), those technologies were not open and did not always take into account requirements to interoperate with SIP-based technologies. The only existing open protocol was &xep0111;, which made it possible to negotiate and manage media sessions, but which did not provide enough of the key signalling semantics to be easily implemented in Jabber/XMPP clients. <note>It is true that TINS made it relatively easy to implement an XMPP-to-SIP gateway; however, in line with the long-time Jabber philosophy of "simple clients, complex servers", it would be better to force complexity onto the server-side gateway and to keep the client as simple as possible.</note></p>
   <p>The result was an unfortunate fragmentation within the XMPP community regarding signalling protocols. Essentially, there were two possible approaches to solving the problem:</p>
   <ol>
     <li>Recommend that all client developers implement a dual-stack (XMPP + SIP) solution.</li>
@@ -1765,6 +1765,6 @@ PENDING  o-----------------------+   |
   <p>As a result of feedback received on <cite>XEP-0111</cite>, the original authors of this document (Joe Hildebrand and Peter Saint-Andre) began to define such a signalling protocol, code-named Jingle. Upon communication with members of the Google Talk team, <note>Google Talk is an instant messaging and voice/video chat service and client provided by Google; see &lt;<link url='http://www.google.com/talk/'>http://www.google.com/talk/</link>&gt;.</note> it was discovered that the emerging Jingle approach was conceptually (and even syntactically) quite similar to the signalling protocol used in the Google Talk application. Therefore, in the interest of interoperability and adoption, we decided to harmonize the two approaches. The signalling protocol specified herein is, therefore, substantially equivalent to the original Google Talk protocol, with several adjustments based on feedback received from implementors as well as for publication by the XMPP Standards Foundation.</p>
 </section1>
 <section1 topic='Acknowledgements' anchor='ack'>
-  <p>The authors would like to thank Rohan Mahy for his valuable input on early versions of the Jingle specifications. Thiago Camargo, Diana Cionoiu, Olivier Cr&#234;te, Dafydd Harries, Antti Ij&#228;s, Tim Julien, Lauri Kaila, Justin Karneges, Jussi Laako, Steffen Larsen, Marcus Lundblad, Dirk Meyer, Anthony Minessale, Akito Nozaki, Matt O'Gorman, Mike Ruprecht, Rob Taylor, Will Thompson, Matt Tucker, Justin Uberti, Saku Vainio, Unnikrishnan Vikrama Panicker, Brian West, Jeff Williams, and others have also provided helpful input. Thanks also to those who have commented on the &SSIG; and Jingle <note>Before this specification was formally accepted by the XMPP Standards Foundation as an XMPP Extension Protocol, it was discussed on the semi-private &lt;jingle@jabber.org&gt; mailing list. This list has since been resurrected as a special-purpose venue for discussion of Jingle protocols and implementation; interested developers can subscribe and access the archives at at &lt;<link url='http://mail.jabber.org/mailman/listinfo/jingle/'>http://mail.jabber.org/mailman/listinfo/jingle/</link>&gt;.</note> mailing lists.</p>
+  <p>The authors would like to thank Rohan Mahy for his valuable input on early versions of the Jingle specifications. Thiago Camargo, Diana Cionoiu, Olivier Cr&#234;te, Philipp Hancke, Dafydd Harries, Antti Ij&#228;s, Tim Julien, Lauri Kaila, Justin Karneges, Jussi Laako, Steffen Larsen, Marcus Lundblad, Dirk Meyer, Anthony Minessale, Akito Nozaki, Matt O'Gorman, Unnikrishnan Vikrama Panicker, Mike Ruprecht, Rob Taylor, Will Thompson, Matt Tucker, Justin Uberti, Saku Vainio, Brian West, Jeff Williams, and others have also provided helpful input. Thanks also to those who have commented on the &SSIG; and Jingle  mailing lists. <note>Before this specification was formally accepted by the XMPP Standards Foundation as an XMPP Extension Protocol, it was discussed on the semi-private &lt;jingle@jabber.org&gt; mailing list. This list has since been resurrected as a special-purpose venue for discussion of Jingle protocols and implementation; interested developers can subscribe and access the archives at &lt;<link url='http://mail.jabber.org/mailman/listinfo/jingle/'>http://mail.jabber.org/mailman/listinfo/jingle/</link>&gt;.</note></p>
 </section1>
 </xep>
