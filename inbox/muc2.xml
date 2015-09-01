@@ -8,7 +8,7 @@
 <xep>
 <header>
   <title>MUC2</title>
-  <abstract>This document provides a protocol that can be used for multi-user chat for text messages and sharing other information such as images.   The protocol includes core chatroom features such as room topics and invitations and defines a strong room control model, including the ability to kick and ban users, to name room moderators and administrators, to require membership or passwords in order to join the room.  The protocol aims to maximise use of standard XMPP building blocks and in particular makes use of PubSub and MAM.</abstract>
+  <abstract>This document defines XMPP protocol  for multi-user chat for text messages and sharing other information such as images.   The protocol includes core chatroom features such as room topics and invitations and defines a strong room control model, including the ability to kick and ban users, to name room moderators and administrators, to require membership or passwords in order to join the room.  The protocol aims to maximise use of standard XMPP building blocks and in particular makes use of PubSub and MAM.</abstract>
   &LEGALNOTICE;
   <number>xxxx</number>
   <status>ProtoXEP</status>
@@ -35,7 +35,10 @@
   </revision>
 </header>
 <section1 topic='Introduction' anchor='intro'>
-  <p>** this text is in the wrong place ** MUC exists and works, but has a number of sharp edges, and doesn't map well onto some modern use cases. This spec defines a protocol that can address current requirements, is hopefully flexible enough to also address future requirements in this area, and that builds on existing XMPP mechanisms such as PubSub and MAM to minimise the work required to implement it (being less work to implement for clients and servers than MUC, if they already implement the dependencies).</p>
+  <p>
+    Multi-user chat is a major application of XMPP, which was standardized in XEP-0045 "Multi-User Chat" referred to as MUC in this document.   The specification here is referenced as MUC2.   MUC2 is intended as a replacement for MUC and to provide a superset of the services provided by MUC.  The protocol includes core chatroom features such as room topics and invitations and defines a strong room control model, including the ability to kick and ban users, to name room moderators and administrators, to require membership or passwords in order to join the room.  The protocol aims to maximise use of standard XMPP building blocks and in particular makes use of PubSub and MAM.   MUC also aims to support communication of rich information in additon to MUC.   
+ 
+    .</p>
 </section1>
 
 <section1 topic='Requirements' anchor='reqs'>
@@ -50,7 +53,12 @@
   
 <section1 topic="Relationship to MUC" anchor="oldmuc">
   <p>
-    This specification is intended as a replacement for MUC specified in XEP-0045, referenced here as MUC.  There are a number of drivers for this specification:
+    This specification is intended as a replacement for MUC specified in XEP-0045, referenced here as MUC.  
+    
+    
+    ** this text is in the wrong place ** MUC exists and works, but has a number of sharp edges, and doesn't map well onto some modern use cases. This spec defines a protocol that can address current requirements, is hopefully flexible enough to also address future requirements in this area, and that builds on existing XMPP mechanisms such as PubSub and MAM to minimise the work required to implement it (being less work to implement for clients and servers than MUC, if they already implement the dependencies)
+    
+    There are a number of drivers for this specification:
   </p>
   <ol start="1.">
     <li>It is not practical to address a number of the requirements listed above with MUC or extensions to MUC. </li>
