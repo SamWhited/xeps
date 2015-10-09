@@ -69,6 +69,7 @@
     <li>XMPP Clients can implement MUC and this specification in a way that provides a coherent user experience.</li>
     <li>XMPP Servers can implement this specification and also provide a MUC interface in order to support clients that only implement MUC.</li>
   </ul>
+  <p>Where servers wish to expose both MUC2 and MUC representations of rooms, they SHOULD do so by having MUC and MUC2 on different domains. The MUC2 SHOULD include a reference to the MUC mirror, so that clients understanding protocols can choose to only show one copy of the service.</p>
 </section1>
 
 
@@ -137,10 +138,40 @@
 </section1>
 <section1 topic='Discovery' anchor='discovery'>
   <section2 topic='Discovering a MUC2 service' anchor='disco-service'>
-    <p></p>
-      <example caption="" ><![CDATA[
-
+    <p>To determine if a domain hosts a MUC2 service, a &xep0030; info query should be sent in the usual manner</p>
+      <example caption="Entity queries a service" ><![CDATA[
+<iq from='romeo@shakespeare.lit/intibo24'
+    id='lx09df27'
+    to='rooms.shakespeare.lit'
+    type='get'>
+  <query xmlns='http://jabber.org/protocol/disco#info'/>
+</iq>
 ]]></example>
+    <p>The MUC2 service then MUST return its identity and the features it supports, which MUST include the 'urn:xmpp:muc2:0' feature, and the identity MUST have a category of 'conference' and a type of 'text'. TODO: do we want a different type?</p>
+    <example caption="Service responds with Disco Info result" ><![CDATA[
+<iq from='rooms.shakespeare.lit'
+    id='lx09df27'
+    to='romeo@shakespeare.lit/intibo24'
+    type='result'>
+  <query xmlns='http://jabber.org/protocol/disco#info'>
+    <identity
+        category='conference'
+        name='Shakespearean Chat Service'
+        type='text'/>
+    <feature var='urn:xmpp:muc2:0'/>
+    <x xmlns='jabber:x:data' type='result'>
+      <field var='FORM_TYPE' type='hidden'>
+        <value>urn:xmpp:muc2:0#roominfo</value>
+      </field>
+      <field var='muc2#muc_mirror' 
+             label='Location of MUC mirror service'>
+        <value>chat.shakespeare.lit</value>
+      </field>
+    </x>
+  </query>
+</iq>
+]]></example>
+    <p>If the MUC2 service is mirrorred to a MUC service for backwards-compatibility, this SHOULD be signaled by the inclusion of a 'muc2#muc_mirror' field, the value of which should be the mirrored MUC domain, in the extended disco results in a form whose type value is 'urn:xmpp:muc2:0#roominfo'. Note that the MUC2 service itself doesn't advertise support for &xep0313;, nor is support for generic &xep0060; advertised. For a list of the other standard data form variables, see ### TODO.</p>
   </section2>
   <section2 topic='Listing rooms on a service' anchor='disco-room-list'>
     <p></p>
