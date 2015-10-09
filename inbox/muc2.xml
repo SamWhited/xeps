@@ -41,13 +41,19 @@
 </section1>
 
 <section1 topic='Requirements' anchor='reqs'>
-  <p>MUC occupancy persisting beyond clients being offline.
-     Nick sharing, with well-defined rules and all resources individually addressable
-     Presenceless MUC
-     Fast resync
-     Invisible Observers
-     Config can be observed from outside the room, given appropriate configuration (e.g. list of occupants, reading messages, etc.)
-     Large Open MUCs should not allow JIDs to be scraped</p>
+  <ul>
+    <li>MUC occupancy persisting beyond clients being offline.</li>
+    <li>Nick sharing, with well-defined rules and all resources individually addressable</li>
+    <li>Presenceless MUC</li>
+    <li>Fast resync</li>
+    <li>Invisible Observers</li>
+    <li>Config can be observed from outside the room, given appropriate configuration (e.g. list of occupants, reading messages, etc.)</li>
+    <li>Large Open MUCs should not allow JIDs to be scraped</li>
+    <li>Play nicely with MAM (no duplicate messages)</li>
+    <li>Know what rooms you're in, globally</li>
+    <li>Desirable: Easier FMUC</li>
+    <li>Desirable: Duplicate traffic reduction</li>
+ </ul>
 </section1>
 
 <section1 topic="Relationship to MUC" anchor="oldmuc">
