@@ -53,6 +53,7 @@
     <li>Know what rooms you're in, globally</li>
     <li>Desirable: Easier FMUC</li>
     <li>Desirable: Duplicate traffic reduction</li>
+    <li>Extensibility in terms of adding new data streams into a room (files, data streams, etc.)</li>
  </ul>
 </section1>
 
@@ -208,10 +209,23 @@
 <section1 topic='Use Cases' anchor='usecases'>
   <section2 topic='Common User Use Cases' anchor='usecases-user'>
     <section3 topic='Entering a room' anchor='usecase-user-enter'>
-      <p>Send pubsub subscriptionish stanza to the room. By default subscribes to all the 'standard' nodes, but can specify just those required. Server injects a new item into #occupants automatically.</p>
+      <p>Send pubsub subscriptionish stanza to the room. There's no default set, all nodes must be specified if they want them (but clients should pick the MUC2 ones at least by default for normal usage). It's possible to forward-subscribe to nodes that don't yet exist, in case they're added (e.g. presence added to a MUC). Server injects a new item into #occupants automatically.</p>
         <example caption="" ><![CDATA[
-
+<iq type='set'
+    from='romeo@shakespeare.lit'
+    to='room@rooms.shakespeare.lit'
+    id='sub1'>
+  <join xmlns='urn:xmpp:muc2:0'>
+    <subscribe node='muc2#messages'/>
+    <subscribe node='muc2#presences'/>
+    <subscribe node='muc2#occupants'/>
+    <subscribe node='muc2#subject'/>
+    <subscribe node='muc2#config'/>
+  </pubsub>
+</iq>
 ]]></example>
+      <p>The MUC room must process the join atomicly.</p>
+      <p>Note that this is not a standard &xep0060; join, so a user's server supporting 'account pubsub'(###TODO) will need to support this too</p>
     </section3>
     <section3 topic='Coming online' anchor='usecase-user-presence'>
       <p>Suggest: roster subscriptions, although directed presence will work. Come online, send presence to the room. Room publishes to #presences. Multiple presences for multiple resources of user.</p>
@@ -339,3 +353,9 @@
   <p>When advanced.</p>
 </section1>
 </xep>
+
+<!--TODO: Query whole service for MAM. Provide data form for filtering by node ID.
+TODO: Two config nodes - one public read one private read?
+TODO: Open Issue: How many config nodes do you need? Do you do different access to different items within a node for reading? Writing?
+TODO: Subscription option to check room config (e.g. anonymity) before join.
+-->
