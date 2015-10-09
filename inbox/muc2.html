@@ -1,382 +1,150 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-<!DOCTYPE html
-  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html>
-   <head>
-      <title>XEP-xxxx: MUC2</title>
-      <link rel="stylesheet" type="text/css" href="../xmpp.css"/>
-      <link href="../prettify.css" type="text/css" rel="stylesheet"/>
-      <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico"/>
-      <script type="text/javascript" src="../prettify.js">/* void */</script>
-      <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
-      <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=2.0"/>
-      <meta name="DC.Title" content="MUC2"/>
-      <meta name="DC.Creator" content="Kevin Smith"/>
-      <meta name="DC.Description" content="This document provides a protocol that can be used for multi-user chat for text messages and sharing other information such as images.   The protocol includes core chatroom features such as room topics and invitations and defines a strong room control model, including the ability to kick and ban users, to name room moderators and administrators, to require membership or passwords in order to join the room.  The protocol aims to maximise use of standard XMPP building blocks and in particular makes use of PubSub and MAM."/>
-      <meta name="DC.Publisher" content="XMPP Standards Foundation"/>
-      <meta name="DC.Contributor" content="XMPP Extensions Editor"/>
-      <meta name="DC.Date" content="2015-06-26"/>
-      <meta name="DC.Type" content="XMPP Extension Protocol"/>
-      <meta name="DC.Format" content="XHTML"/>
-      <meta name="DC.Identifier" content="XEP-xxxx"/>
-      <meta name="DC.Language" content="en"/>
-      <meta name="DC.Rights" content="This XMPP Extension Protocol is copyright © 1999 - 2014 by the XMPP Standards Foundation (XSF)."/>
-   </head>
-   <body onload="prettyPrint()">
-      <h1>XEP-xxxx: MUC2</h1>
-      <table>
-         <tr valign="top">
-            <td>
-               <strong>Abstract:</strong>
-            </td>
-            <td>This document provides a protocol that can be used for multi-user chat for text messages and sharing other information such as images.   The protocol includes core chatroom features such as room topics and invitations and defines a strong room control model, including the ability to kick and ban users, to name room moderators and administrators, to require membership or passwords in order to join the room.  The protocol aims to maximise use of standard XMPP building blocks and in particular makes use of PubSub and MAM.</td>
-         </tr>
-         <tr valign="top">
-            <td>
-               <strong>Author:</strong>
-            </td>
-            <td>Kevin Smith</td>
-         </tr>
-         <tr valign="top">
-            <td>
-               <strong>Copyright:</strong>
-            </td>
-            <td>© 1999 - 2014 XMPP Standards Foundation. <a href="#appendix-legal">SEE LEGAL NOTICES</a>.</td>
-         </tr>
-         <tr valign="top">
-            <td>
-               <strong>Status:</strong>
-            </td>
-            <td>ProtoXEP</td>
-         </tr>
-         <tr valign="top">
-            <td>
-               <strong>Type:</strong>
-            </td>
-            <td>Standards Track</td>
-         </tr>
-         <tr valign="top">
-            <td>
-               <strong>Version:</strong>
-            </td>
-            <td>0.0.1</td>
-         </tr>
-         <tr valign="top">
-            <td>
-               <strong>Last Updated:</strong>
-            </td>
-            <td>2015-06-26</td>
-         </tr>
-      </table>
-      <hr/>
-      <p style="color:red">WARNING: This document has not yet been accepted for consideration or approved in any official manner by the XMPP Standards Foundation, and this document is not yet an XMPP Extension Protocol (XEP). If this document is accepted as a XEP by the XMPP Council, it will be published at &lt;<a href="http://xmpp.org/extensions/">http://xmpp.org/extensions/</a>&gt; and announced on the &lt;standards@xmpp.org&gt; mailing list.</p>
-      <hr/>
-      <h2>Table of Contents</h2>
-      <div class="indent">
-         <p>
-            <br/>1.  <a href="#intro">Introduction</a>
-            <br/>2.  <a href="#reqs">Requirements</a>
-            <br/>3.  <a href="#oldmuc">Relationship to MUC</a>
-            <br/>4.  <a href="#reqs">Concepts</a>
-            <br/>5.  <a href="#sect-d0e157">Use of PubSub &amp; MAM</a>
-            <br/>   
-      5.1.  <a href="#basic pubsub">MUC2 and PubSub</a>
-            <br/>   
-      5.2.  <a href="#node naming">Node Naming Convetions</a>
-            <br/>   
-      5.3.  <a href="#mam use">MAM</a>
-            <br/>6.  <a href="#discovery">Discovery</a>
-            <br/>7.  <a href="#usecases">Use Cases</a>
-            <br/>   
-      7.1.  <a href="#initial">Initial Join</a>
-            <br/>   
-      7.2.  <a href="#create-check">Check if allowed to create room</a>
-            <br/>8.  <a href="#security">Security Considerations</a>
-            <br/>9.  <a href="#iana">IANA Considerations</a>
-            <br/>10.  <a href="#registrar">XMPP Registrar Considerations</a>
-            <br/>11.  <a href="#schema">XML Schema</a>
-         </p>
-         <p>
-            <a href="#appendices">Appendices</a>
-            <br/>    <a href="#appendix-docinfo">A: Document Information</a>
-            <br/>    <a href="#appendix-authorinfo">B: Author Information</a>
-            <br/>    <a href="#appendix-legal">C: Legal Notices</a>
-            <br/>    <a href="#appendix-xmpp">D: Relation to XMPP</a>
-            <br/>    <a href="#appendix-discuss">E: Discussion Venue</a>
-            <br/>    <a href="#appendix-conformance">F: Requirements Conformance</a>
-            <br/>    <a href="#appendix-notes">G: Notes</a>
-            <br/>    <a href="#appendix-revs">H: Revision History</a>
-         </p>
-      </div>
-      <hr/>
-      <h2>1.
-       <a name="intro">Introduction</a>
-      </h2>
-  
-      <p class="" style="">** this text is in the wrong place ** MUC exists and works, but has a number of sharp edges, and doesn't map well onto some modern use cases. This spec defines a protocol that can address current requirements, is hopefully flexible enough to also address future requirements in this area, and that builds on existing XMPP mechanisms such as pubsub and MAM to minimise the work required to implement it (being less work to implement for clients and servers than MUC, if they already implement the dependencies).</p>
-
-      <h2>2.
-       <a name="reqs">Requirements</a>
-      </h2>
-  
-      <p class="" style="">MUC occupancy persisting beyond clients being offline.
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>XEP-xxxx: MUC2</title><link rel="stylesheet" type="text/css" href="http://xmpp.org/xmpp.css" /><link href="http://xmpp.org/prettify.css" type="text/css" rel="stylesheet" /><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" /><script type="text/javascript" src="http://xmpp.org/prettify.js"></script><meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=2.0" /><meta name="DC.Title" content="MUC2" /><meta name="DC.Creator" content="Kevin Smith" /><meta name="DC.Description" content="This document defines XMPP protocol  for multi-user chat for text messages and sharing other information such as images.   The protocol includes core chatroom features such as room topics and invitations and defines a strong room control model, including the ability to kick and ban users, to name room moderators and administrators, to require membership or passwords in order to join the room.  The protocol aims to maximise use of standard XMPP building blocks and in particular makes use of PubSub and MAM." /><meta name="DC.Publisher" content="XMPP Standards Foundation" /><meta name="DC.Contributor" content="XMPP Extensions Editor" /><meta name="DC.Date" content="2015-06-26" /><meta name="DC.Type" content="XMPP Extension Protocol" /><meta name="DC.Format" content="XHTML" /><meta name="DC.Identifier" content="XEP-xxxx" /><meta name="DC.Language" content="en" /><meta name="DC.Rights" content="This XMPP Extension Protocol is copyright &#xA9; 1999 - 2014 by the XMPP Standards Foundation (XSF)." /></head><body onload="prettyPrint()"><h1>XEP-xxxx: MUC2</h1><table><tr valign="top"><td><strong>Abstract:</strong></td><td>This document defines XMPP protocol  for multi-user chat for text messages and sharing other information such as images.   The protocol includes core chatroom features such as room topics and invitations and defines a strong room control model, including the ability to kick and ban users, to name room moderators and administrators, to require membership or passwords in order to join the room.  The protocol aims to maximise use of standard XMPP building blocks and in particular makes use of PubSub and MAM.</td></tr><tr valign="top"><td><strong>Author:</strong></td><td>Kevin Smith</td></tr><tr valign="top"><td><strong>Copyright:</strong></td><td>© 1999 - 2014 XMPP Standards Foundation. <a href="#appendix-legal">SEE LEGAL NOTICES</a>.</td></tr><tr valign="top"><td><strong>Status:</strong></td><td>ProtoXEP</td></tr><tr valign="top"><td><strong>Type:</strong></td><td>Standards Track</td></tr><tr valign="top"><td><strong>Version:</strong></td><td>0.0.1</td></tr><tr valign="top"><td><strong>Last Updated:</strong></td><td>2015-06-26</td></tr></table><hr /><p style="color:red">WARNING: This document has not yet been accepted for consideration or approved in any official manner by the XMPP Standards Foundation, and this document is not yet an XMPP Extension Protocol (XEP). If this document is accepted as a XEP by the XMPP Council, it will be published at &lt;<a href="http://xmpp.org/extensions/">http://xmpp.org/extensions/</a>&gt; and announced on the &lt;standards@xmpp.org&gt; mailing list.</p><hr /><h2>Table of Contents</h2><div class="indent"><p><br />1.  <a href="#intro">Introduction</a><br />2.  <a href="#reqs">Requirements</a><br />3.  <a href="#oldmuc">Relationship to MUC</a><br />4.  <a href="#reqs">Concepts</a><br />5.  <a href="#sect-idm368690110048">Use of PubSub &amp; MAM</a><br />   
+      5.1.  <a href="#basic pubsub">MUC2 and PubSub</a><br />   
+      5.2.  <a href="#node naming">Node Naming Conventions</a><br />   
+      5.3.  <a href="#mam use">MAM</a><br />6.  <a href="#discovery">Discovery</a><br />7.  <a href="#usecases">Use Cases</a><br />   
+      7.1.  <a href="#initial">Initial Join</a><br />   
+      7.2.  <a href="#create-check">Check if allowed to create room</a><br />8.  <a href="#security">Security Considerations</a><br />9.  <a href="#iana">IANA Considerations</a><br />10.  <a href="#registrar">XMPP Registrar Considerations</a><br />11.  <a href="#schema">XML Schema</a></p><p><a href="#appendices">Appendices</a><br />    <a href="#appendix-docinfo">A: Document Information</a><br />    <a href="#appendix-authorinfo">B: Author Information</a><br />    <a href="#appendix-legal">C: Legal Notices</a><br />    <a href="#appendix-xmpp">D: Relation to XMPP</a><br />    <a href="#appendix-discuss">E: Discussion Venue</a><br />    <a href="#appendix-conformance">F: Requirements Conformance</a><br />    <a href="#appendix-notes">G: Notes</a><br />    <a href="#appendix-revs">H: Revision History</a></p></div><hr /><h2>1.
+       <a name="intro" id="intro">Introduction</a></h2>
+  <p class="" style="">
+    Multi-user chat is a major application of XMPP that was standardized in <span class="ref" style=""><a href="http://xmpp.org/extensions/xep-0045.html">Multi-User Chat (XEP-0045)</a></span>  [<a href="#nt-idm368690164720">1</a>] (MUC). This ocument specifies a MUC2 protocol, intended as a replacement for MUC. MUC2 covers newer use cases that have appeared over the thirteen years since MUC was first published and takes advantage of the newer protocols and technologies developed in the interim (particularly <span class="ref" style=""><a href="http://xmpp.org/extensions/xep-0060.html">Publish-Subscribe (XEP-0060)</a></span>  [<a href="#nt-idm368690160128">2</a>] and <span class="ref" style=""><a href="http://xmpp.org/extensions/xep-0313.html">Message Archive Management (XEP-0313)</a></span>  [<a href="#nt-idm368690155840">3</a>]).  The protocol includes core chatroom features such as room topics and invitations and defines a strong room control model, including the ability to kick and ban users, to name room moderators and administrators, and to require membership in order to join the room.  MUC2 also aims to support communication of rich information in additon to MUC.
+  </p>
+<h2>2.
+       <a name="reqs" id="reqs">Requirements</a></h2>
+  <p class="" style="">MUC occupancy persisting beyond clients being offline.
      Nick sharing, with well-defined rules and all resources individually addressable
      Presenceless MUC
      Fast resync
      Invisible Observers
      Config can be observed from outside the room, given appropriate configuration (e.g. list of occupants, reading messages, etc.)
      Large Open MUCs should not allow JIDs to be scraped</p>
+<h2>3.
+       <a name="oldmuc" id="oldmuc">Relationship to MUC</a></h2>
+  <p class="" style="">
+    This specification is intended as a replacement for MUC specified in <span class="ref" style=""><a href="http://xmpp.org/extensions/xep-0045.html">Multi-User Chat (XEP-0045)</a></span>  [<a href="#nt-idm368690166656">4</a>].
 
-      <h2>3.
-       <a name="oldmuc">Relationship to MUC</a>
-      </h2>
-  
-      <p class="" style="">
-    This specification is intended as a replacement for MUC specified in XEP-0045, refernced here as MUC.  There are a number of drivers for this specicification:
+    ** this text is in the wrong place ** MUC exists and works, but has a number of sharp edges, and doesn't map well onto some modern use cases. This spec defines a protocol that can address current requirements, is hopefully flexible enough to also address future requirements in this area, and that builds on existing XMPP mechanisms such as PubSub and MAM to minimise the work required to implement it (being less work to implement for clients and servers than MUC, if they already implement the dependencies)
+
+    There are a number of drivers for this specification:
   </p>
-  
-      <ol start="1." class="" style="">
-    
-         <li class="" style="">It is not practical to address a number of the requirements listed above with MUC or extensions to MUC. </li>
-    
-         <li class="" style="">MUC was developed as a complete service.   Subsequent to MUC,  PubSub and MAM have been developed and it is desirable that mult-user chat utilizes these building blocks.</li>
-  
-      </ol>
-  
-      <p class="" style="">
+  <ul class="" style="">
+    <li class="" style="">It is not practical to address a number of the requirements listed above with MUC or extensions to MUC. </li>
+    <li class="" style="">MUC was developed as a complete service.   Subsequent to MUC,  PubSub and MAM have been developed and it is desirable that multi-user chat utilizes these building blocks.</li>
+  </ul>
+  <p class="" style="">
     It is anticipated that there will significant co-existence with MUC and this specification is designed so that:
   </p>
-  
-      <ol start="1." class="" style="">
-    
-         <li class="" style="">XMPP Clients can implement MUC and this specification in a way that provides a coherent user experience.</li>
-    
-         <li class="" style="">XMPP Servers can implement this specification and also provide a MUC interface in order to support clients that only implement MUC.</li>
-  
-      </ol>
-
-      <h2>4.
-       <a name="reqs">Concepts</a>
-      </h2>
-  
-      <p class="" style="">Domain hosting rooms, muc2.example.com.
-     Each room a pubsub service (room@muc2.example.com).
-     Several well-known nodes comprise the room.
-     One node for subject changes.
-     One node for messages.
-     Affiliations of nodes tied together somehow (Central affiliation list, and then by reference?).
-     Presence in a node.
-     Each node in MAM.
-     Resync by doing a MAM query across all the nodes you care about to process diffs (also for 'last 100 messages'), or just a full fetch of pubsub items (e.g. for current presence).
-     Addressing and nicknames are split. Changing nicknames doesn't affect addresses. In a non-anonymous room, full JIDs are probably used. In an anonymous room, the room will have to magic them away.
-     </p>
-
-      <h2>5.
-       <a name="sect-d0e157">Use of PubSub &amp; MAM</a>
-      </h2>
-  
-      <p class="" style="">
-    MUC2 is makes use of XMPP PubSub for core communication and access control, and MAM for message storage to provide chat history services.  This section outlines this is achieved, and considers how a MUC room coven@chat.shakespeare.lit is provided.
+  <ul class="" style="">
+    <li class="" style="">XMPP Clients can implement MUC and this specification in a way that provides a coherent user experience.</li>
+    <li class="" style="">XMPP Servers can implement this specification and also provide a MUC interface in order to support clients that only implement MUC.</li>
+  </ul>
+<h2>4.
+       <a name="reqs" id="reqs">Concepts</a></h2>
+  <p class="" style="">(Some of these concepts discuss their position in terms of MUC, which seems useful initially but we'd probably refine away as we approached Draft)</p>
+  <ul class="" style="">
+    <li class="" style="">MUC2 rooms will be hosted on a MUC2 domain, e.g. `rooms.example.com`, which is discoverable through disco[ref] and through disco (<span class="ref" style=""><a href="http://xmpp.org/extensions/xep-0030.html">Service Discovery (XEP-0030)</a></span>  [<a href="#nt-idm368690134016">5</a>]) each room on the service may then be discovered and queried. This is the same model as MUC.</li>
+    <li class="" style="">Re-using the model from PEP[ref] where every user JID (`user@server`) is its own pubsub service, in MUC2 each room (`room@rooms.server`) is a pubsub service.</li>
+    <li class="" style="">Where appropriate, some of the protocol from <span class="ref" style=""><a href="http://xmpp.org/extensions/xep-0060.html">Publish-Subscribe (XEP-0060)</a></span>  [<a href="#nt-idm368690162128">6</a>] is elided</li>
+    <li class="" style="">Each room's pubsub service will contain several nodes that are well-defined in this document, with each node devoted to the storage of a distinct type of room data. As each room is a pubsub service, it will also be possible for future specifications or proprietary extensions to use additional (effectively namespaced) nodes as required to store information not specified in this document, and this allows future extensibility. The standard nodes are (noting that not every room will necessarily use each node):
+    <ul class="" style="">
+        <li class="" style="">'muc2#messages' for publishing messages. Each item of this node will contain one message, containing each of the distributed payloads (described in ###).</li>
+        <li class="" style="">'muc2#subject' for publishing the room subject.</li>
+        <li class="" style="">'muc2#occupants' for publishing the list of occupants of the room, including their details (e.g. the occupant's JID in an appropriately configured room).</li>
+        <li class="" style="">'muc2#presence' for publishing occupants' presence. This is a significant departure from MUC, where occupancy and presence were tightly coupled - in MUC2 it is possible to have a 'presenceless room' by not using this node. As another significant departure from MUC, where an occupant is active in the room from multiple resources, each resource's presence is individually available, as is normal outside MUC.</li>
+        <li class="" style="">'muc2#config' for storing the room configuration. In another departure from MUC, by storing configuration in the same manner as other data, it is possible to tweak access rights such that occupants are able to read the room configuration if desired, and notifications of configuration changes fall out 'for free'.</li>
+    </ul></li>
+    <li class="" style="">Affiliations to the nodes are, by default, tied together as affiliations on the room itself rather than individual nodes, such that allowing or denying access to a room is a single affiliation change.</li>
+    <li class="" style=""><span class="ref" style=""><a href="http://xmpp.org/extensions/xep-0313.html">Message Archive Management (XEP-0313)</a></span>  [<a href="#nt-idm368690157824">7</a>] (MAM) is used for all history access, with each node being individually addressable for MAM queries. This simplifies implementation compared to MUC (which had its own, limited, history retrieval mechanism).</li>
+    <li class="" style="">A client can achieve a 'quick resync' of a node by requesting just those changes it has not yet received, using standard MAM protocol. This solves the old MUC issue of either receiving duplicate messages when rejoining a room, or of potentially missing messages.</li>
+    <li class="" style="">As MAM is used for history, only those nodes that have a 'current value' need to store any items in them - e.g. 'muc2#presence' and 'muc2#subject' would store their current values (with older values being queryable through MAM), while 'muc2#messages' would store no items.</li>
+    <li class="" style="">MUC2 decouples addressing of occupants from their nicknames, such that nickname changes don't affect addressing, adding flexibility.</li>
+    <li class="" style="">Each occupant is addressible by a single JID - in non-anonymous rooms these are just the ocucpant's 'real' JID such that messages between users are only mediated by the MUC2 service in semi-anonymous rooms.</li>
+    <li class="" style="">In semi-anonymous rooms, occupants are granted a proxy JID by the service, such that queries and messages between users are possible.</li>
+    <li class="" style=""></li>
+  </ul>
+<h2>5.
+       <a name="sect-idm368690110048" id="sect-idm368690110048">Use of PubSub &amp; MAM</a></h2>
+  <p class="" style="">
+    MUC2 makes use of <span class="ref" style=""><a href="http://xmpp.org/extensions/xep-0060.html">Publish-Subscribe (XEP-0060)</a></span>  [<a href="#nt-idm368690129728">8</a>] for core communication and access control, and <span class="ref" style=""><a href="http://xmpp.org/extensions/xep-0313.html">Message Archive Management (XEP-0313)</a></span>  [<a href="#nt-idm368690118016">9</a>] for message storage to provide chat history services.  This section outlines how this is achieved, and considers how a MUC room coven@chat.shakespeare.lit is provided.
   </p>
-  
-      <div class="indent">
-         <h3>5.1 <a name="basic pubsub">MUC2 and PubSub</a>
-         </h3>
-    
-         <p class="" style="">
-      MUC2 will be based upon domains provding an XMPP PubSub service.  So a domain chat.shakespeare.lit would be used to provide the example MUC room.  Client communications with the MUC2 service follow XEP-0060 PubSub and are required to conform to this specification. However, this specification is not simply an application that uses PubSub which can be implemented purely as a PubSub client, such as Form Discovery and Publishing specified in XEP-0346.  With MUC2 there is server side processing in addition to XEP-0060.  For example, when a message is published the message made available to subscribers may be different to the original message as a comsquence of additionl processing performed according to this XEP.   
+  <div class="indent"><h3>5.1 <a name="basic pubsub" id="basic pubsub">MUC2 and PubSub</a></h3>
+    <p class="" style="">
+      MUC2 is based upon domains proving an XMPP MUC2 service.  So a domain chat.shakespeare.lit would be used to provide the example MUC room and is a MUC2 domain. Note that although PubSub communication is used,  a domain used for MUC2 is a MUC2 domain and not a PubSub domain.   
     </p>
-    
-         <p class="" style="">
-      An XMPP PubSub service provides a set of named nodes.   Each MUC room is provided by a number of these nodes.  The core node associated with a room holds messages to the MUC room.   To send a message to a MUC room, a user simply publishes the message onto the core node.   The message is then published to all subcribers of the node.   This is how MUC2 provides primary message distribution.
+    <p class="" style="">
+      Every MUC2 room is an addressable PubSub service, that will be addressed by an XMPP client using a bare JID.   For example, coven@chat.shakespeare.lit is an addressable PubSub service.  Client communications with the MUC2 service follow XEP-0060 PubSub and are required to conform to this specification. However, this specification is not simply an application that uses PubSub which can be implemented purely as a PubSub client, such as Form Discovery and Publishing specified in XEP-0346.  With MUC2 there is server side processing in addition to XEP-0060.  For example, when a message is published the message made available to subscribers may be different to the original message as a consequence of additional processing performed according to this XEP.   
     </p>
-  
-      </div>
-  
-      <div class="indent">
-         <h3>5.2 <a name="node naming">Node Naming Convetions</a>
-         </h3>
-    
-         <p class="" style="">
-      A MUC room is provided by a set of PubSub nodes.  Nodes are named with the syntax: "muc/" &lt;room name&gt; "/" &lt; node type&gt;.   For example the core node of the example room would be "muc/coven/core".  The following node types are defined in this specification:
+    <p class="" style="">
+      Each MUC room is an XMPP PubSub service provides and provides a set of named nodes that provide various MUC2 capabilities.   The name of the node correspondes to the function provided by the node.  The core node associated with a room holds messages to the MUC room.   To send a message to a MUC room, a user simply publishes the message onto the core node.   The message is then published to all subscribers of the node.   This is how MUC2 provides primary message distribution.
     </p>
-    
-         <ul class="" style="">
-      
-            <li class="" style="">"core":  The node used for messages</li>
-      
-            <li class="" style="">"subject":  The active subject of the MUC room.</li>
-      
-            <li class="" style="">"config":  Room configuration and access information.</li>
-      
-            <li class="" style="">"roster": List of visible active room members.</li>
-      
-            <li class="" style="">*** Need to discuss with Kev before digging any deeper</li>
-    
-         </ul>
-  
-      </div>
-  
-      <div class="indent">
-         <h3>5.3 <a name="mam use">MAM</a>
-         </h3>
-    
-         <p class="" style="">
+  </div>
+  <div class="indent"><h3>5.2 <a name="node naming" id="node naming">Node Naming Conventions</a></h3>
+    <p class="" style="">
+      A MUC room is provided by a set of PubSub nodes.  Nodes are named with simple strings that refflect the  The following node types are defined in this specification:
+    </p>
+    <ul class="" style="">
+      <li class="" style="">"core":  The node used for messages</li>
+      <li class="" style="">"subject":  The active subject of the MUC room.</li>
+      <li class="" style="">"config":  Room configuration and access information.</li>
+      <li class="" style="">"roster": List of visible active room members.</li>
+ 
+    </ul>
+  </div>
+  <div class="indent"><h3>5.3 <a name="mam use" id="mam use">MAM</a></h3>
+    <p class="" style="">
       MUC2 makes use of MAM to provide server side history.   When a message arrives at the MUC2 service, the initial action is to store this message in MAM.  By using MAM first, this enables all messages to be published with a MAM id.   This will enable a client to access MUC history using MAM in a way that will efficiently avoid retrieval of messages that the client already has.
     </p>
-  
-      </div>
+  </div>
+<h2>6.
+       <a name="discovery" id="discovery">Discovery</a></h2>
+  <p class="" style="">Find domain.</p>
+<h2>7.
+       <a name="usecases" id="usecases">Use Cases</a></h2>
+  <div class="indent"><h3>7.1 <a name="initial" id="initial">Initial Join</a></h3>
+    <p class="" style=""></p>
+    <p class="caption"><a name="example-1" id="example-1"></a>Example 1. Romeo joins</p><div class="indent"><pre class="prettyprint">
 
-      <h2>6.
-       <a name="discovery">Discovery</a>
-      </h2>
-  
-      <p class="" style="">Find domain.</p>
+</pre></div>
+  </div>
+  <div class="indent"><h3>7.2 <a name="create-check" id="create-check">Check if allowed to create room</a></h3>
+    <p class="" style=""></p>
+    <p class="caption"><a name="example-2" id="example-2"></a>Example 2. Romeo joins</p><div class="indent"><pre class="prettyprint">
 
-      <h2>7.
-       <a name="usecases">Use Cases</a>
-      </h2>
+</pre></div>
+  </div>
   
-      <div class="indent">
-         <h3>7.1 <a name="initial">Initial Join</a>
-         </h3>
-    
-         <p class="" style=""/>
-    
-         <p class="caption">
-            <a name="example-1"/>Example 1. Romeo joins</p>
-         <div class="indent">
-            <pre class="prettyprint">
-
-
-            </pre>
-         </div>
-  
-      </div>
-  
-      <div class="indent">
-         <h3>7.2 <a name="create-check">Check if allowed to create room</a>
-         </h3>
-    
-         <p class="" style=""/>
-    
-         <p class="caption">
-            <a name="example-2"/>Example 2. Romeo joins</p>
-         <div class="indent">
-            <pre class="prettyprint">
-
-
-            </pre>
-         </div>
-  
-      </div>
-  
-
-      <h2>8.
-       <a name="security">Security Considerations</a>
-      </h2>
-  
-      <p class="" style="">This specification doesn't add additional security considerations beyond those of its dependencies.</p>
-
-      <h2>9.
-       <a name="iana">IANA Considerations</a>
-      </h2>
-  
-      <p class="" style="">None.</p>
-
-      <h2>10.
-       <a name="registrar">XMPP Registrar Considerations</a>
-      </h2>
-  
-      <p class="" style="">Needs a namespace.</p>
-
-      <h2>11.
-       <a name="schema">XML Schema</a>
-      </h2>
-  
-      <p class="" style="">When advanced.</p>
-
-      <hr/>
-      <a name="appendices"/>
-      <h2>Appendices</h2>
-      <hr/>
-      <a name="appendix-docinfo"/>
-      <h3>Appendix A: Document Information</h3>
-      <p class="indent">
-            Series: <a href="http://xmpp.org/extensions/">XEP</a>
-         <br/>
-            Number: xxxx<br/>
-            Publisher: <a href="/xsf/">XMPP Standards Foundation</a>
-         <br/>
+<h2>8.
+       <a name="security" id="security">Security Considerations</a></h2>
+  <p class="" style="">This specification doesn't add additional security considerations beyond those of its dependencies.</p>
+<h2>9.
+       <a name="iana" id="iana">IANA Considerations</a></h2>
+  <p class="" style="">None.</p>
+<h2>10.
+       <a name="registrar" id="registrar">XMPP Registrar Considerations</a></h2>
+  <p class="" style="">Needs a namespace.</p>
+<h2>11.
+       <a name="schema" id="schema">XML Schema</a></h2>
+  <p class="" style="">When advanced.</p>
+<hr /><a name="appendices" id="appendices"></a><h2>Appendices</h2><hr /><a name="appendix-docinfo" id="appendix-docinfo"></a><h3>Appendix A: Document Information</h3><p class="indent">
+            Series: <a href="http://xmpp.org/extensions/">XEP</a><br />
+            Number: xxxx<br />
+            Publisher: <a href="/xsf/">XMPP Standards Foundation</a><br />
             Status: 
-            <a href="http://xmpp.org/extensions/xep-0001.html#states-ProtoXEP">ProtoXEP</a>
-         <br/>
+            <a href="http://xmpp.org/extensions/xep-0001.html#states-ProtoXEP">ProtoXEP</a><br />
             Type:
-            <a href="http://xmpp.org/extensions/xep-0001.html#types-Standards Track">Standards Track</a>
-         <br/>
-            Version: 0.0.1<br/>
-            Last Updated: 2015-06-26<br/>
-                Approving Body: <a href="http://xmpp.org/council/">XMPP Council</a>
-         <br/>Dependencies: XMPP Core, XMPP IM, XEP-0004, XEP-0030, XEP-0060, XEP-0313<br/>
-                Supersedes: None<br/>
-                Superseded By: None<br/>
-            Short Name: MUC2<br/>
+            <a href="http://xmpp.org/extensions/xep-0001.html#types-Standards Track">Standards Track</a><br />
+            Version: 0.0.1<br />
+            Last Updated: 2015-06-26<br />
+                Approving Body: <a href="http://xmpp.org/council/">XMPP Council</a><br />Dependencies: XMPP Core, XMPP IM, XEP-0004, XEP-0030, XEP-0060, XEP-0313<br />
+                Supersedes: None<br />
+                Superseded By: None<br />
+            Short Name: MUC2<br />
             This document in other formats: 
                 <a class="standardsButton" href="http://xmpp.org/extensions/xep-xxxx.xml">XML</a> 
-                <a class="standardsButton" href="http://xmpp.org/extensions/xep-xxxx.pdf">PDF</a>
-      </p>
-      <hr/>
-      <a name="appendix-authorinfo"/>
-      <h3>Appendix B: Author Information</h3>
-      <div class="indent">
-         <h3>Kevin Smith</h3>
-         <p class="indent">
+                <a class="standardsButton" href="http://xmpp.org/extensions/xep-xxxx.pdf">PDF</a></p><hr /><a name="appendix-authorinfo" id="appendix-authorinfo"></a><h3>Appendix B: Author Information</h3><div class="indent"><h3>Kevin Smith</h3><p class="indent">
         Email:
-        <a href="mailto:kevin.smith@isode.com">kevin.smith@isode.com</a>
-            <br/>
+        <a href="mailto:kevin.smith@isode.com">kevin.smith@isode.com</a><br />
         JabberID: 
-        <a href="xmpp:kevin.smith@isode.com">kevin.smith@isode.com</a>
-            <br/>
-         </p>
-      </div>
-      <hr/>
-      <a name="appendix-legal"/>
-      <h3>Appendix C: Legal Notices</h3>
-      <div class="indent">
-         <h4>Copyright</h4>This XMPP Extension Protocol is copyright © 1999 - 2014 by the <a href="http://xmpp.org/">XMPP Standards Foundation</a> (XSF).<h4>Permissions</h4>Permission is hereby granted, free of charge, to any person obtaining a copy of this specification (the "Specification"), to make use of the Specification without restriction, including without limitation the rights to implement the Specification in a software program, deploy the Specification in a network service, and copy, modify, merge, publish, translate, distribute, sublicense, or sell copies of the Specification, and to permit persons to whom the Specification is furnished to do so, subject to the condition that the foregoing copyright notice and this permission notice shall be included in all copies or substantial portions of the Specification. Unless separate permission is granted, modified works that are redistributed shall not contain misleading information regarding the authors, title, number, or publisher of the Specification, and shall not claim endorsement of the modified works by the authors, any organization or project to which the authors belong, or the XMPP Standards Foundation.<h4>Disclaimer of Warranty</h4>
-         <span style="font-weight: bold">## NOTE WELL: This Specification is provided on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, express or implied, including, without limitation, any warranties or conditions of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A PARTICULAR PURPOSE. ##</span>
-         <h4>Limitation of Liability</h4>In no event and under no legal theory, whether in tort (including negligence), contract, or otherwise, unless required by applicable law (such as deliberate and grossly negligent acts) or agreed to in writing, shall the XMPP Standards Foundation or any author of this Specification be liable for damages, including any direct, indirect, special, incidental, or consequential damages of any character arising from, out of, or in connection with the Specification or the implementation, deployment, or other use of the Specification (including but not limited to damages for loss of goodwill, work stoppage, computer failure or malfunction, or any and all other commercial damages or losses), even if the XMPP Standards Foundation or such author has been advised of the possibility of such damages.<h4>IPR Conformance</h4>This XMPP Extension Protocol has been contributed in full conformance with the XSF's Intellectual Property Rights Policy (a copy of which can be found at &lt;<a href="http://xmpp.org/about-xmpp/xsf/xsf-ipr-policy/">http://xmpp.org/about-xmpp/xsf/xsf-ipr-policy/</a>&gt; or obtained by writing to XMPP Standards Foundation, 1899 Wynkoop Street, Suite 600, Denver, CO 80202 USA).</div>
-      <hr/>
-      <a name="appendix-xmpp"/>
-      <h3>Appendix D: Relation to XMPP</h3>
-      <p class="indent">The Extensible Messaging and Presence Protocol (XMPP) is defined in the XMPP Core (RFC 6120) and XMPP IM (RFC 6121) specifications contributed by the XMPP Standards Foundation to the Internet Standards Process, which is managed by the Internet Engineering Task Force in accordance with RFC 2026. Any protocol defined in this document has been developed outside the Internet Standards Process and is to be understood as an extension to XMPP rather than as an evolution, development, or modification of XMPP itself.</p>
-      <hr/>
-      <a name="appendix-discuss"/>
-      <h3>Appendix E: Discussion Venue</h3>
-      <p class="indent">The primary venue for discussion of XMPP Extension Protocols is the &lt;<a href="http://mail.jabber.org/mailman/listinfo/standards">standards@xmpp.org</a>&gt; discussion list.</p>
-      <p class="indent">Discussion on other xmpp.org discussion lists might also be appropriate; see &lt;<a href="http://xmpp.org/about/discuss.shtml">http://xmpp.org/about/discuss.shtml</a>&gt; for a complete list.</p>
-      <p class="indent">Errata can be sent to &lt;<a href="mailto:editor@xmpp.org">editor@xmpp.org</a>&gt;.</p>
-      <hr/>
-      <a name="appendix-conformance"/>
-      <h3>Appendix F: Requirements Conformance</h3>
-      <p class="indent">The following requirements keywords as used in this document are to be interpreted as described in <a href="http://www.ietf.org/rfc/rfc2119.txt">RFC 2119</a>: "MUST", "SHALL", "REQUIRED"; "MUST NOT", "SHALL NOT"; "SHOULD", "RECOMMENDED"; "SHOULD NOT", "NOT RECOMMENDED"; "MAY", "OPTIONAL".</p>
-      <hr/>
-      <a name="appendix-notes"/>
-      <h3>Appendix G: Notes</h3>
-      <div class="indent"/>
-      <hr/>
-      <a name="appendix-revs"/>
-      <h3>Appendix H: Revision History</h3>
-      <p>Note: Older versions of this specification might be available at <a href="http://xmpp.org/extensions/attic/">http://xmpp.org/extensions/attic/</a>
-      </p>
-      <div class="indent">
-         <h4>Version 0.0.1 (2015-06-26)</h4>
-         <div class="indent">
-            <p class="" style="">First draft.</p> (kis)
-    </div>
-      </div>
-      <hr/>
-      <p>END</p>
-   </body>
-</html>
+        <a href="xmpp:kevin.smith@isode.com">kevin.smith@isode.com</a><br /></p></div><hr /><a name="appendix-legal" id="appendix-legal"></a><h3>Appendix C: Legal Notices</h3><div class="indent"><h4>Copyright</h4>This XMPP Extension Protocol is copyright © 1999 - 2014 by the <a href="http://xmpp.org/">XMPP Standards Foundation</a> (XSF).<h4>Permissions</h4>Permission is hereby granted, free of charge, to any person obtaining a copy of this specification (the "Specification"), to make use of the Specification without restriction, including without limitation the rights to implement the Specification in a software program, deploy the Specification in a network service, and copy, modify, merge, publish, translate, distribute, sublicense, or sell copies of the Specification, and to permit persons to whom the Specification is furnished to do so, subject to the condition that the foregoing copyright notice and this permission notice shall be included in all copies or substantial portions of the Specification. Unless separate permission is granted, modified works that are redistributed shall not contain misleading information regarding the authors, title, number, or publisher of the Specification, and shall not claim endorsement of the modified works by the authors, any organization or project to which the authors belong, or the XMPP Standards Foundation.<h4>Disclaimer of Warranty</h4><span style="font-weight: bold">## NOTE WELL: This Specification is provided on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, express or implied, including, without limitation, any warranties or conditions of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A PARTICULAR PURPOSE. ##</span><h4>Limitation of Liability</h4>In no event and under no legal theory, whether in tort (including negligence), contract, or otherwise, unless required by applicable law (such as deliberate and grossly negligent acts) or agreed to in writing, shall the XMPP Standards Foundation or any author of this Specification be liable for damages, including any direct, indirect, special, incidental, or consequential damages of any character arising from, out of, or in connection with the Specification or the implementation, deployment, or other use of the Specification (including but not limited to damages for loss of goodwill, work stoppage, computer failure or malfunction, or any and all other commercial damages or losses), even if the XMPP Standards Foundation or such author has been advised of the possibility of such damages.<h4>IPR Conformance</h4>This XMPP Extension Protocol has been contributed in full conformance with the XSF's Intellectual Property Rights Policy (a copy of which can be found at &lt;<a href="http://xmpp.org/about-xmpp/xsf/xsf-ipr-policy/">http://xmpp.org/about-xmpp/xsf/xsf-ipr-policy/</a>&gt; or obtained by writing to XMPP Standards Foundation, 1899 Wynkoop Street, Suite 600, Denver, CO 80202 USA).</div><hr /><a name="appendix-xmpp" id="appendix-xmpp"></a><h3>Appendix D: Relation to XMPP</h3><p class="indent">The Extensible Messaging and Presence Protocol (XMPP) is defined in the XMPP Core (RFC 6120) and XMPP IM (RFC 6121) specifications contributed by the XMPP Standards Foundation to the Internet Standards Process, which is managed by the Internet Engineering Task Force in accordance with RFC 2026. Any protocol defined in this document has been developed outside the Internet Standards Process and is to be understood as an extension to XMPP rather than as an evolution, development, or modification of XMPP itself.</p><hr /><a name="appendix-discuss" id="appendix-discuss"></a><h3>Appendix E: Discussion Venue</h3><p class="indent">The primary venue for discussion of XMPP Extension Protocols is the &lt;<a href="http://mail.jabber.org/mailman/listinfo/standards">standards@xmpp.org</a>&gt; discussion list.</p><p class="indent">Discussion on other xmpp.org discussion lists might also be appropriate; see &lt;<a href="http://xmpp.org/about/discuss.shtml">http://xmpp.org/about/discuss.shtml</a>&gt; for a complete list.</p><p class="indent">Errata can be sent to &lt;<a href="mailto:editor@xmpp.org">editor@xmpp.org</a>&gt;.</p><hr /><a name="appendix-conformance" id="appendix-conformance"></a><h3>Appendix F: Requirements Conformance</h3><p class="indent">The following requirements keywords as used in this document are to be interpreted as described in <a href="http://www.ietf.org/rfc/rfc2119.txt">RFC 2119</a>: "MUST", "SHALL", "REQUIRED"; "MUST NOT", "SHALL NOT"; "SHOULD", "RECOMMENDED"; "SHOULD NOT", "NOT RECOMMENDED"; "MAY", "OPTIONAL".</p><hr /><a name="appendix-notes" id="appendix-notes"></a><h3>Appendix G: Notes</h3><div class="indent"><p><a name="nt-idm368690164720" id="nt-idm368690164720">1</a>. XEP-0045: Multi-User Chat &lt;<a href="http://xmpp.org/extensions/xep-0045.html">http://xmpp.org/extensions/xep-0045.html</a>&gt;.</p><p><a name="nt-idm368690160128" id="nt-idm368690160128">2</a>. XEP-0060: Publish-Subscribe &lt;<a href="http://xmpp.org/extensions/xep-0060.html">http://xmpp.org/extensions/xep-0060.html</a>&gt;.</p><p><a name="nt-idm368690155840" id="nt-idm368690155840">3</a>. XEP-0313: Message Archive Management &lt;<a href="http://xmpp.org/extensions/xep-0313.html">http://xmpp.org/extensions/xep-0313.html</a>&gt;.</p><p><a name="nt-idm368690166656" id="nt-idm368690166656">4</a>. XEP-0045: Multi-User Chat &lt;<a href="http://xmpp.org/extensions/xep-0045.html">http://xmpp.org/extensions/xep-0045.html</a>&gt;.</p><p><a name="nt-idm368690134016" id="nt-idm368690134016">5</a>. XEP-0030: Service Discovery &lt;<a href="http://xmpp.org/extensions/xep-0030.html">http://xmpp.org/extensions/xep-0030.html</a>&gt;.</p><p><a name="nt-idm368690162128" id="nt-idm368690162128">6</a>. XEP-0060: Publish-Subscribe &lt;<a href="http://xmpp.org/extensions/xep-0060.html">http://xmpp.org/extensions/xep-0060.html</a>&gt;.</p><p><a name="nt-idm368690157824" id="nt-idm368690157824">7</a>. XEP-0313: Message Archive Management &lt;<a href="http://xmpp.org/extensions/xep-0313.html">http://xmpp.org/extensions/xep-0313.html</a>&gt;.</p><p><a name="nt-idm368690129728" id="nt-idm368690129728">8</a>. XEP-0060: Publish-Subscribe &lt;<a href="http://xmpp.org/extensions/xep-0060.html">http://xmpp.org/extensions/xep-0060.html</a>&gt;.</p><p><a name="nt-idm368690118016" id="nt-idm368690118016">9</a>. XEP-0313: Message Archive Management &lt;<a href="http://xmpp.org/extensions/xep-0313.html">http://xmpp.org/extensions/xep-0313.html</a>&gt;.</p></div><hr /><a name="appendix-revs" id="appendix-revs"></a><h3>Appendix H: Revision History</h3><p>Note: Older versions of this specification might be available at <a href="http://xmpp.org/extensions/attic/">http://xmpp.org/extensions/attic/</a></p><div class="indent"><h4>Version 0.0.1 (2015-06-26)</h4><div class="indent"><p class="" style="">First draft.</p> (kis)
+    </div></div><hr /><p>END</p></body></html>

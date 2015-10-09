@@ -36,9 +36,8 @@
 </header>
 <section1 topic='Introduction' anchor='intro'>
   <p>
-    Multi-user chat is a major application of XMPP, which was standardized in XEP-0045 "Multi-User Chat" referred to as MUC in this document.   The specification here is referenced as MUC2.   MUC2 is intended as a replacement for MUC and to provide a superset of the services provided by MUC.  The protocol includes core chatroom features such as room topics and invitations and defines a strong room control model, including the ability to kick and ban users, to name room moderators and administrators, to require membership or passwords in order to join the room.  The protocol aims to maximise use of standard XMPP building blocks and in particular makes use of PubSub and MAM.   MUC also aims to support communication of rich information in additon to MUC.   
- 
-    .</p>
+    Multi-user chat is a major application of XMPP that was standardized in &xep0045; (MUC). This ocument specifies a MUC2 protocol, intended as a replacement for MUC. MUC2 covers newer use cases that have appeared over the thirteen years since MUC was first published and takes advantage of the newer protocols and technologies developed in the interim (particularly &xep0060; and &xep0313;).  The protocol includes core chatroom features such as room topics and invitations and defines a strong room control model, including the ability to kick and ban users, to name room moderators and administrators, and to require membership in order to join the room.  MUC2 also aims to support communication of rich information in additon to MUC.
+  </p>
 </section1>
 
 <section1 topic='Requirements' anchor='reqs'>
@@ -50,47 +49,57 @@
      Config can be observed from outside the room, given appropriate configuration (e.g. list of occupants, reading messages, etc.)
      Large Open MUCs should not allow JIDs to be scraped</p>
 </section1>
-  
+
 <section1 topic="Relationship to MUC" anchor="oldmuc">
   <p>
-    This specification is intended as a replacement for MUC specified in XEP-0045, referenced here as MUC.  
-    
-    
+    This specification is intended as a replacement for MUC specified in &xep0045;.
+
     ** this text is in the wrong place ** MUC exists and works, but has a number of sharp edges, and doesn't map well onto some modern use cases. This spec defines a protocol that can address current requirements, is hopefully flexible enough to also address future requirements in this area, and that builds on existing XMPP mechanisms such as PubSub and MAM to minimise the work required to implement it (being less work to implement for clients and servers than MUC, if they already implement the dependencies)
-    
+
     There are a number of drivers for this specification:
   </p>
-  <ol start="1.">
+  <ul>
     <li>It is not practical to address a number of the requirements listed above with MUC or extensions to MUC. </li>
     <li>MUC was developed as a complete service.   Subsequent to MUC,  PubSub and MAM have been developed and it is desirable that multi-user chat utilizes these building blocks.</li>
-  </ol>
+  </ul>
   <p>
     It is anticipated that there will significant co-existence with MUC and this specification is designed so that:
   </p>
-  <ol start="1.">
+  <ul>
     <li>XMPP Clients can implement MUC and this specification in a way that provides a coherent user experience.</li>
     <li>XMPP Servers can implement this specification and also provide a MUC interface in order to support clients that only implement MUC.</li>
-  </ol>
-</section1>  
+  </ul>
+</section1>
 
 
 <section1 topic='Concepts' anchor='reqs'>
-  <p>Domain hosting rooms, muc2.example.com.
-     Each room a PubSub service (room@muc2.example.com).
-     Several well-known nodes comprise the room.
-     One node for subject changes.
-     One node for messages.
-     Affiliations of nodes tied together somehow (Central affiliation list, and then by reference?).
-     Presence in a node.
-     Each node in MAM.
-     Resync by doing a MAM query across all the nodes you care about to process diffs (also for 'last 100 messages'), or just a full fetch of PubSub items (e.g. for current presence).
-     Addressing and nicknames are split. Changing nicknames doesn't affect addresses. In a non-anonymous room, full JIDs are probably used. In an anonymous room, the room will have to magic them away.
-     </p>
+  <p>(Some of these concepts discuss their position in terms of MUC, which seems useful initially but we'd probably refine away as we approached Draft)</p>
+  <ul>
+    <li>MUC2 rooms will be hosted on a MUC2 domain, e.g. `rooms.example.com`, which is discoverable through disco[ref] and through disco (&xep0030;) each room on the service may then be discovered and queried. This is the same model as MUC.</li>
+    <li>Re-using the model from PEP[ref] where every user JID (`user@server`) is its own pubsub service, in MUC2 each room (`room@rooms.server`) is a pubsub service.</li>
+    <li>Where appropriate, some of the protocol from &xep0060; is elided</li>
+    <li>Each room's pubsub service will contain several nodes that are well-defined in this document, with each node devoted to the storage of a distinct type of room data. As each room is a pubsub service, it will also be possible for future specifications or proprietary extensions to use additional (effectively namespaced) nodes as required to store information not specified in this document, and this allows future extensibility. The standard nodes are (noting that not every room will necessarily use each node):
+    <ul>
+        <li>'muc2#messages' for publishing messages. Each item of this node will contain one message, containing each of the distributed payloads (described in ###).</li>
+        <li>'muc2#subject' for publishing the room subject.</li>
+        <li>'muc2#occupants' for publishing the list of occupants of the room, including their details (e.g. the occupant's JID in an appropriately configured room).</li>
+        <li>'muc2#presence' for publishing occupants' presence. This is a significant departure from MUC, where occupancy and presence were tightly coupled - in MUC2 it is possible to have a 'presenceless room' by not using this node. As another significant departure from MUC, where an occupant is active in the room from multiple resources, each resource's presence is individually available, as is normal outside MUC.</li>
+        <li>'muc2#config' for storing the room configuration. In another departure from MUC, by storing configuration in the same manner as other data, it is possible to tweak access rights such that occupants are able to read the room configuration if desired, and notifications of configuration changes fall out 'for free'.</li>
+    </ul></li>
+    <li>Affiliations to the nodes are, by default, tied together as affiliations on the room itself rather than individual nodes, such that allowing or denying access to a room is a single affiliation change.</li>
+    <li>&xep0313; (MAM) is used for all history access, with each node being individually addressable for MAM queries. This simplifies implementation compared to MUC (which had its own, limited, history retrieval mechanism).</li>
+    <li>A client can achieve a 'quick resync' of a node by requesting just those changes it has not yet received, using standard MAM protocol. This solves the old MUC issue of either receiving duplicate messages when rejoining a room, or of potentially missing messages.</li>
+    <li>As MAM is used for history, only those nodes that have a 'current value' need to store any items in them - e.g. 'muc2#presence' and 'muc2#subject' would store their current values (with older values being queryable through MAM), while 'muc2#messages' would store no items.</li>
+    <li>MUC2 decouples addressing of occupants from their nicknames, such that nickname changes don't affect addressing, adding flexibility.</li>
+    <li>Each occupant is addressible by a single JID - in non-anonymous rooms these are just the ocucpant's 'real' JID such that messages between users are only mediated by the MUC2 service in semi-anonymous rooms.</li>
+    <li>In semi-anonymous rooms, occupants are granted a proxy JID by the service, such that queries and messages between users are possible.</li>
+    <li></li>
+  </ul>
 </section1>
 
 <section1 topic="Use of PubSub &amp; MAM">
   <p>
-    MUC2 is makes use of XMPP PubSub for core communication and access control, and MAM for message storage to provide chat history services.  This section outlines this is achieved, and considers how a MUC room coven@chat.shakespeare.lit is provided.
+    MUC2 makes use of &xep0060; for core communication and access control, and &xep0313; for message storage to provide chat history services.  This section outlines how this is achieved, and considers how a MUC room coven@chat.shakespeare.lit is provided.
   </p>
   <section2 topic="MUC2 and PubSub" anchor="basic pubsub">
     <p>
