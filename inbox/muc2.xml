@@ -84,7 +84,7 @@
         <li>'muc2#messages' for publishing messages. Each item of this node will contain one message, containing each of the distributed payloads (described in ###).</li>
         <li>'muc2#subject' for publishing the room subject.</li>
         <li>'muc2#occupants' for publishing the list of occupants of the room, including their details (e.g. the occupant's JID in an appropriately configured room).</li>
-        <li>'muc2#presence' for publishing occupants' presence. This is a significant departure from MUC, where occupancy and presence were tightly coupled - in MUC2 it is possible to have a 'presenceless room' by not using this node. As another significant departure from MUC, where an occupant is active in the room from multiple resources, each resource's presence is individually available, as is normal outside MUC.</li>
+        <li>'muc2#presences' for publishing occupants' presence. This is a significant departure from MUC, where occupancy and presence were tightly coupled - in MUC2 it is possible to have a 'presenceless room' by not using this node. As another significant departure from MUC, where an occupant is active in the room from multiple resources, each resource's presence is individually available, as is normal outside MUC.</li>
         <li>'muc2#config' for storing the room configuration. In another departure from MUC, by storing configuration in the same manner as other data, it is possible to tweak access rights such that occupants are able to read the room configuration if desired, and notifications of configuration changes fall out 'for free'.</li>
     </ul></li>
     <li>Affiliations to the nodes are, by default, tied together as affiliations on the room itself rather than individual nodes, such that allowing or denying access to a room is a single affiliation change.</li>
@@ -161,7 +161,7 @@
     <feature var='urn:xmpp:muc2:0'/>
     <x xmlns='jabber:x:data' type='result'>
       <field var='FORM_TYPE' type='hidden'>
-        <value>urn:xmpp:muc2:0#roominfo</value>
+        <value>urn:xmpp:muc2:0#serviceinfo</value>
       </field>
       <field var='muc2#muc_mirror' 
              label='Location of MUC mirror service'>
@@ -171,22 +171,28 @@
   </query>
 </iq>
 ]]></example>
-    <p>If the MUC2 service is mirrorred to a MUC service for backwards-compatibility, this SHOULD be signaled by the inclusion of a 'muc2#muc_mirror' field, the value of which should be the mirrored MUC domain, in the extended disco results in a form whose type value is 'urn:xmpp:muc2:0#roominfo'. Note that the MUC2 service itself doesn't advertise support for &xep0313;, nor is support for generic &xep0060; advertised. For a list of the other standard data form variables, see ### TODO.</p>
+    <p>If the MUC2 service is mirrorred to a MUC service for backwards-compatibility, this SHOULD be signaled by the inclusion of a 'muc2#muc_mirror' field, the value of which should be the mirrored MUC domain, in the extended disco results in a form whose type value is 'urn:xmpp:muc2:0#serviceinfo'. Note that the MUC2 service itself doesn't advertise support for &xep0313;, nor is support for generic &xep0060; advertised. For a list of the other standard data form variables, see ### TODO (If there are any).</p>
   </section2>
   <section2 topic='Listing rooms on a service' anchor='disco-room-list'>
-    <p></p>
+    <p>disco#items</p>
       <example caption="" ><![CDATA[
 
 ]]></example>
   </section2>
   <section2 topic='Discovering room information' anchor='disco-room-info'>
-    <p></p>
+    <p>disco#info</p>
+      <example caption="" ><![CDATA[
+
+]]></example>
+  </section2>
+  <section2 topic='Discovering room nodes' anchor='disco-room-nodes'>
+    <p>disco#items. Lets you see which nodes a room has ###TODO: Discussion</p>
       <example caption="" ><![CDATA[
 
 ]]></example>
   </section2>
   <section2 topic='Discovering room occupants' anchor='disco-occupants'>
-    <p></p>
+    <p>*Not* done with disco#items (which returns nodes), instead query items on the muc2#occupants node (if you're allowed).</p>
       <example caption="" ><![CDATA[
 
 ]]></example>
@@ -196,37 +202,43 @@
 <section1 topic='Use Cases' anchor='usecases'>
   <section2 topic='Common User Use Cases' anchor='usecases-user'>
     <section3 topic='Entering a room' anchor='usecase-user-enter'>
-      <p></p>
+      <p>Send pubsub subscriptionish stanza to the room. By default subscribes to all the 'standard' nodes, but can specify just those required. Server injects a new item into #occupants automatically.</p>
         <example caption="" ><![CDATA[
 
 ]]></example>
     </section3>
     <section3 topic='Coming online' anchor='usecase-user-presence'>
-      <p></p>
+      <p>Suggest: roster subscriptions, although directed presence will work. Come online, send presence to the room. Room publishes to #presences. Multiple presences for multiple resources of user.</p>
+        <example caption="" ><![CDATA[
+
+]]></example>
+    </section3>
+    <section3 topic='Going offline' anchor='usecase-user-offline'>
+      <p>Go offline, send presence to the room. Room retracts item, with notifications.</p>
         <example caption="" ><![CDATA[
 
 ]]></example>
     </section3>
     <section3 topic='Sending Messages' anchor='usecase-user-messages'>
-      <p></p>
+      <p>Same as MUC (message=groupchat+body), but message comes from the room, and has markup to show who sent it.</p>
         <example caption="" ><![CDATA[
 
 ]]></example>
     </section3>
     <section3 topic='Leaving a room' anchor='usecase-user-leaving'>
-      <p></p>
+      <p>Send pubsubbish unsubscribe to room. Room retracts #occupants #presence. This is a persistent leaving of room, not just going offline.</p>
         <example caption="" ><![CDATA[
 
 ]]></example>
     </section3>
-    <section3 topic='Inviting a User To a Room' anchor='usecase-user-invite'>
-      <p></p>
+    <section3 topic='Inviting a Contact To a Room' anchor='usecase-user-invite'>
+      <p>User sends to room requesting invite, receives it, forwards it to contact. Solves issues with both directed and mediated invites. ### TODO: Dave had a point about contact preverification about users' invites. Discuss.</p>
         <example caption="" ><![CDATA[
 
 ]]></example>
     </section3>
-    <section3 topic='Sending Private Mesages' anchor='usecase-user-private-messages'>
-      <p></p>
+    <section3 topic='Sending Private Messages' anchor='usecase-user-private-messages'>
+      <p>Users' JIDs are available from #occupants (may be proxied if semi-anonymous), just send normal chats.</p>
         <example caption="" ><![CDATA[
 
 ]]></example>
