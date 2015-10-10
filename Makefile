@@ -4,6 +4,7 @@ OUTDIR?=build
 TEMPDIR?=$(TMPDIR)/xepbuild
 XMLDEPS=xep.xsl xep.xsd xep.ent xep.dtd ref.xsl $(OUTDIR)
 TEXMLDEPS=xep2texml.xsl $(TEMPDIR) $(XMLDEPS) $(TEMPDIR)/xmpp.pdf $(TEMPDIR)/xmpp-text.pdf
+XEPDIRS=. inbox
 
 
 .PHONY: help
@@ -79,9 +80,9 @@ clean:
 
 .PHONY: preview
 preview:
-	inotifywait -m -e close_write,moved_to --format '%e %f' . | \
-	while read -r event file; do \
+	inotifywait -m -e close_write,moved_to --format '%e %w %f' $(XEPDIRS) | \
+	while read -r event dir file; do \
 		if [ "$${file: -4}" == ".xml" ]; then \
-			xsltproc --path $(CURDIR) xep.xsl "$${file}" > "$(OUTDIR)/$${file: :8}.html" && echo "Built $${file: :8}.html $${event}"; \
+			xsltproc --path $(CURDIR) xep.xsl "$${dir}/$${file}" > "$(OUTDIR)/$${file%.*}.html" && echo "Built $${file%.*}.html $${event}"; \
 		fi \
 	done
