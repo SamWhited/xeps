@@ -442,6 +442,7 @@ Romeo                         Juliet
 </iq>
   ]]></example>
   <p>In this example, the initiator (romeo@montague.example/dr4hcr0st3lup4c) sends a session initiation offer to the responder (juliet@capulet.example/yn0cl4bnw0yr3vym), where the session is defined as the exchange of "foo" media over a "bar" transport.</p>
+  <p>Note well that Jingle uses IQ stanzas to initiate (and complete negotiation of) a session. This implies that the initiator needs to know which of the receiver's devices it wants to communicate with (e.g., based on capabilities or availability). A way for the initiator to send the invitation to all of the receiver's devices is specified in &xep0353;.</p>
   <p>After the responding client acknowledges receipt of the session-initiate message (not shown here), it prompts the responding user (if any) to choose whether she wants to proceed with the session (however, it does not need to prompt the user if for example she has configured her client to automatically accept session requests from this particular initiator). If she wants to proceed she selects the appropriate interface element and her client sends a session-accept message to the initiator.</p>
   <example caption="Responder definitively accepts the session"><![CDATA[
 <iq from='juliet@capulet.example/yn0cl4bnw0yr3vym'
