@@ -44,33 +44,17 @@
   &diana;
   <revision>
     <version>1.1rc1</version>
-    <date>2015-08-17</date>
+    <date>2015-10-10</date>
     <initials>psa</initials>
     <remark>
       <ul>
         <li>Removed &lt;active/&gt; informational message, since it is unnecessary given &lt;unhold/&gt; and &lt;unmute/&gt;.</li>
+        <li>Added &lt;rtcp-mux/&gt; element to enable support for RFC 5761.</li>
+        <li>Added Opus examples.</li>
         <li>Corrected several examples (e.g., old ice-udp namespaces).</li>
-
-
-
-<li>
-- add Opus examples
-- move the SDP mapping to a separate XEP
-- add reference to trickle ICE (also in 176)
-- don't trickle transports until you receive response to session-initiate?
-- add &lt;required/&gt; crypto element to schema
-- Section 7: first check for the &lt;required/&gt; element
-- new spec for encryption (point to SRTP-SDES, ZRTP, DTLS-SCTP)
-- disco feature for SDES
-- fix up RTP profile text
-- schema extensibility
-- add note about DTMF
-- apply http://hancke.name/jabber/jingle-rtcpmux.patch with schema fix
-- rtcp-rsize is not supported, but reference 5506 (you can do it if you'd like)
-</li>
-
-
-
+        <li>Added note about checking for consistency with local security policy before proceeding.</li>
+        <li>Updated schema to allow extensibility in &lt;description/&gt; element.</li>
+        <li>Updated schema to add 'required' attribute on &lt;encryption/&gt; element.</li>
       </ul>
     </remark>
   </revision>
@@ -328,7 +312,7 @@
      <li><p>The application format negotiation process is defined in the <link url='#negotiation'>Negotiating a Jingle RTP Session</link> section of this document.</p></li>
      <li><p>The semantics of the &DESCRIPTION; element are defined in the <link url='#format'>Application Format</link> section of this document.</p></li>
      <li><p>A mapping of Jingle semantics to the Session Description Protocol is provided in the <link url='#sdp'>Mapping to Session Description Protocol</link> section of this document.</p></li>
-     <li><p>A Jingle RTP session SHOULD use a datagram transport method (e.g. &xep0177; or the "ice-udp" method specified in &xep0176;), but MAY use a streaming transport if the end-to-end link has minimal latency and the media negotiated is not unduly heavy (e.g., it might be possible to use a streaming transport for audio, but not for video).</p></li>
+     <li><p>A Jingle RTP session SHOULD use a datagram transport method (e.g., Interactive Connectivity Establishment (ICE) as specified in &xep0176;), but MAY use a streaming transport if the end-to-end link has minimal latency and the media negotiated is not unduly heavy (e.g., it might be possible to use a streaming transport for audio, but not for video).</p></li>
      <li><p>Jingle RTP supports two components: one for RTP itself and one for the Real Time Control Protocol (RTCP). The component numbered "1" MUST be associated with RTP and the component numbered "2" MUST be associated with RTCP. Even if an implementation does not support RTCP, it MUST accept Jingle content types that include component "2" by mirroring the second component in its replies (however, it would simply ignore the RTCP-related data during the RTP session).</p></li>
      <li>
        <p>Content is to be sent and received as follows:</p>
@@ -351,6 +335,7 @@
   <p>The application format consists of one or more encodings contained within a wrapper &lt;description/&gt; element qualified by the 'urn:xmpp:jingle:apps:rtp:1' namespace &VNOTE;. In the language of <cite>RFC 4566</cite> each encoding is a payload-type; therefore, each &lt;payload-type/&gt; element specifies an encoding that can be used for the RTP stream, as illustrated in the following example.</p>
   <code><![CDATA[
     <description xmlns='urn:xmpp:jingle:apps:rtp:1' media='audio'>
+      <payload-type id='101' name='opus' clockrate='48000'/>
       <payload-type id='96' name='speex' clockrate='16000'/>
       <payload-type id='97' name='speex' clockrate='8000'/>
       <payload-type id='18' name='G729'/>
@@ -365,8 +350,9 @@
   ]]></code>
   <p>The &DESCRIPTION; element is intended to be a child of a Jingle &CONTENT; element as specified in <cite>XEP-0166</cite>.</p>
   <p>The &DESCRIPTION; element MUST possess a 'media' attribute that specifies the media type, such as "audio" or "video", where the media type SHOULD be as registered at &ianamedia;.</p>
-  <p>The &DESCRIPTION; element MAY possess a 'ssrc' attribute that specifies the 32-bit synchronization source for this media stream, as defined in <cite>RFC 3550</cite>.</p>
+  <p>The &DESCRIPTION; element MAY possess an 'ssrc' attribute that specifies the 32-bit synchronization source for this media stream, as defined in <cite>RFC 3550</cite>.</p>
   <p>After inclusion of one or more &PAYLOADTYPE; child elements, the &DESCRIPTION; element MAY also contain a &lt;bandwidth/&gt; element that specifies the allowable or preferred bandwidth for use by this application type. The 'type' attribute of the &lt;bandwidth/&gt; element SHOULD be a value for the SDP "bwtype" parameter as listed in the &ianasdp;. For RTP sessions, often the &lt;bandwidth/&gt; element will specify the "session bandwidth" as described in Section 6.2 of <cite>RFC 3550</cite>, measured in kilobits per second as described in Section 5.2 of <cite>RFC 4566</cite>.</p>
+  <p>Also, the &DESCRIPTION; element MAY contain an &lt;rtcp-mux/&gt; element that signals the ability to multiplex RTP data and control packets on a single port as described in &rfc5761;.</p>
   <p>The encodings SHOULD be provided in order of preference by placing the most-preferred payload type as the first &PAYLOADTYPE; child of the &DESCRIPTION; element and the least-preferred payload type as the last child.</p>
   <p>The attributes of the &PAYLOADTYPE; element are as follows:</p>
   <table caption='Payload-Type Attributes'>
@@ -414,7 +400,7 @@
     </tr>
   </table>
   <p>In Jingle RTP, the encodings are used in the context of RTP. The most common encodings for the Audio/Video Profile (AVP) of RTP are listed in <cite>RFC 3551</cite> (these "static" types are reserved from payload ID 0 through payload ID 95), although other encodings are allowed (these "dynamic" types use payload IDs 96 to 127) in accordance with the dynamic assignment rules described in Section 3 of <cite>RFC 3551</cite>. The payload IDs are represented in the 'id' attribute.</p>
-  <p>Each &lt;payload-type/&gt; element MAY contain one or more child elements that specify particular parameters related to the payload. For example, as described in &rfc5574;, the "cng", "mode", and "vbr" parameters can be specified in relation to usage of the Speex <note>See &lt;<link url='http://www.speex.org/'>http://www.speex.org/</link>&gt;.</note> codec. Where such parameters are encoded via the "fmtp" SDP attribute, they shall be represented in Jingle via the following format:</p>
+  <p>Each &lt;payload-type/&gt; element MAY contain one or more child elements that specify particular parameters related to the payload. For example, as described in &rfc7587;, various parameters (such as "maxplaybackrate and "maxaveragebitrate" can be specified in relation to usage of the Opus codec &rfc6716;. Where such parameters are encoded via the "fmtp" SDP attribute, they shall be represented in Jingle via the following format:</p>
   <code><![CDATA[
 <parameter name='foo' value='bar'/>
   ]]></code>
@@ -455,6 +441,7 @@ Initiator                    Responder
           sid='a73sjjvkla37jfea'>
     <content creator='initiator' name='voice'>
       <description xmlns='urn:xmpp:jingle:apps:rtp:1' media='audio'>
+        <payload-type id='101' name='opus' clockrate='48000'/>
         <payload-type id='96' name='speex' clockrate='16000'/>
         <payload-type id='97' name='speex' clockrate='8000'/>
         <payload-type id='18' name='G729'/>
@@ -501,7 +488,7 @@ Initiator                    Responder
     type='result'/>
   ]]></example>
   <p>Depending on user preferences or client configuration, a user agent controlled by a human user might need to wait for the user to affirm a desire to proceed with the session before continuing. When the user agent has received such affirmation (or if the user agent can automatically proceed for any reason, e.g. because no human intervention is expected or because a human user has configured the user agent to automatically accept sessions with a given entity), it returns a Jingle session-accept message. The session-accept message SHOULD include a subset of the payload types sent by the initiator, i.e., a list of the offered payload types that the responder can send and/or receive. The list that the responder sends SHOULD retain the ID numbers specified by the initiator. The order of the &PAYLOADTYPE; elements indicates the responder's preferences, with the most-preferred type first.</p>
-  <p>In the following example, we imagine that the responder supports Speex at a clockrate of 8000 but not 16000, G729, and PCMA but not PMCU. Therefore the responder returns only two payload types (since PMCA was not offered).</p>
+  <p>In the following example, we imagine that the responder supports Opus at a clockrate of 48000, Speex at a clockrate of 8000 but not 16000, G729, and PCMA but not PMCU. Therefore the responder returns only two payload types (since PMCA was not offered).</p>
   <example caption="Responder definitively accepts the session"><![CDATA[
 <iq from='juliet@capulet.example/yn0cl4bnw0yr3vym'
     id='i91fs6d5'
@@ -514,6 +501,7 @@ Initiator                    Responder
           sid='a73sjjvkla37jfea'>
     <content creator='initiator' name='voice'>
       <description xmlns='urn:xmpp:jingle:apps:rtp:1' media='audio'>
+        <payload-type id='101' name='opus' clockrate='48000'/>
         <payload-type id='97' name='speex' clockrate='8000'/>
         <payload-type id='18' name='G729'/>
       </description>
@@ -548,6 +536,7 @@ Initiator                    Responder
     <li>If the value of the 'senders' attribute is "initiator" then the initiator MAY use any codec that it can send and the responder can receive.</li>
     <li>If the value of the 'senders' attribute is "responder" then the responder MAY use any codec that it can send and the initiator can receive.</li>
     <li>If the value of the 'senders' attribute is "both" then the parties MAY use any codec that both parties can send and receive.</li>
+    <li>If the value of the 'senders' attribute is "none" then the parties MAY use any codec that both parties can send and receive, but no media is sent.</li>
   </ul>
 </section1>
 
@@ -573,29 +562,31 @@ m=audio 9999 RTP/AVP 13
   <p>For example, consider a payload of 16-bit linear-encoded stereo audio sampled at 16KHz associated with dynamic payload-type 96:</p>
   <code><![CDATA[
 <description xmlns='urn:xmpp:jingle:apps:rtp:1' media='audio'>
-  <payload-type id='96' name='speex' clockrate='16000'/>
+  <payload-type id='101' name='opus' clockrate='48000'/>
 </description>
   ]]></code>
   <p>That Jingle-formatted information would be mapped to SDP as follows:</p>
   <code><![CDATA[
-m=audio 9999 RTP/AVP 96
-a=rtpmap:96 speex/16000
+m=audio 9999 RTP/AVP 101
+a=rtpmap:101 opus/48000
   ]]></code>
   <p>As noted, if additional parameters are to be specified, they shall be represented as attributes of the &lt;parameter/&gt; child of the &PAYLOADTYPE; element, as in the following example.</p>
   <code><![CDATA[
 <description xmlns='urn:xmpp:jingle:apps:rtp:1' media='audio'>
-  <payload-type id='96' name='speex' clockrate='16000' ptime='40'>
-    <parameter name='vbr' value='on'/>
-    <parameter name='cng' value='on'/>
+  <payload-type id='101' name='opus' clockrate='48000' ptime='40'>
+    <parameter name='maxplaybackrate' value='16000'/>
+    <parameter name='sprop-maxplaybackrate' value='16000'/>
+    <parameter name='stereo' value='1'/>
+    <parameter name='sprop-stereo-preferred' value='1'/>
   </payload-type>
 </description>
   ]]></code>
   <p>That Jingle-formatted information would be mapped to SDP as follows:</p>
   <code><![CDATA[
-m=audio 9999 RTP/AVP 96
-a=rtpmap:96 speex/16000
+m=audio 9999 RTP/AVP 101
+a=rtpmap:96 opus/48000
 a=ptime:40
-a=fmtp:96 vbr=on;cng=on
+a=fmtp:101 maxplaybackrate=16000;sprop-maxplaybackrate=16000;stereo=1;sprop-stereo-preferred=1
   ]]></code>
   <p>The formatting is similar for video parameters, as shown in the following example.</p>
   <code><![CDATA[
@@ -616,11 +607,12 @@ a=rtpmap:98 theora/90000
 a=fmtp:98 sampling=YCbCr-4:2:2; width=800; height=600;
 delivery-method=inline; configuration=somebase16string;
   ]]></code>
+  <p>Note: The rtcp-rsize attribute &rfc5506; is not supported directly, but implementations MAY support it if desired.</p>
 </section1>
 
 <section1 topic='Negotiation of SRTP' anchor='srtp'>
   <p>&rfc3711; defines the Secure Real-time Transport Protocol, and &rfc4568; defines the SDP "crypto" attribute for signalling and negotiating the use of SRTP in the context of offer-answer protocols such as SIP. To enable the use of SRTP and gatewaying to non-XMPP technologies that make use of the "crypto" SDP attribute, we define a corresponding &lt;crypto/&gt; element qualified by the 'urn:xmpp:jingle:apps:rtp:1' namespace.</p>
-  <p>If the initiator wishes to use SRTP, the session-initiate stanza shall include an &lt;encryption/&gt; element, which MUST contain at least one &lt;crypto/&gt; element and MAY include multiple instances of the &lt;crypto/&gt; element. The &lt;encryption/&gt; element MUST be a child of the &lt;description/&gt; element. If the initiator requires the session to be encrypted, the &lt;encryption/&gt; element MUST include a 'required' attribute whose logical value is TRUE and whose lexical value is "true" or "1" &BOOLEANNOTE;, where this attribute defaults to a logical value of FALSE (i.e., a lexical value of "false" or "0").</p>
+  <p>If the initiator wishes to use SRTP, the session-initiate stanza shall include an &lt;encryption/&gt; element, which MUST contain at least one &lt;crypto/&gt; element and MAY include multiple instances of the &lt;crypto/&gt; element. The &lt;encryption/&gt; element MUST be a child of the &lt;description/&gt; element. If the initiator requires the session to be encrypted, the &lt;encryption/&gt; element MUST include a 'required' attribute whose logical value is TRUE and whose lexical value is "true" or "1" &BOOLEANNOTE;, where this attribute defaults to a logical value of FALSE (i.e., a lexical value of "false" or "0"). Before proceeding with negotiation, an implementation MUST first check for the 'required' attribute and verify that its value is acceptable according to its local security policy.</p>
   <p>The &lt;crypto/&gt; element is defined as empty (i.e., not containing any child elements); the XML attributes of the &lt;crypto/&gt; element are as follows:</p>
   <ul>
     <li>crypto-suite -- this maps to the SDP "crypto-suite" parameter and has the same semantics (i.e., it is an identifier that describes the encryption and authentication algorithms).</li>
@@ -884,6 +876,7 @@ Romeo                         Juliet
           sid='a73sjjvkla37jfea'>
     <content creator='initiator' name='voice'>
       <description xmlns='urn:xmpp:jingle:apps:rtp:1' media='audio'>
+        <payload-type id='101' name='opus' clockrate='48000'/>
         <payload-type id='96' name='speex' clockrate='16000'/>
         <payload-type id='97' name='speex' clockrate='8000'/>
         <payload-type id='18' name='G729'/>
@@ -994,6 +987,7 @@ Romeo                         Juliet
           sid='a73sjjvkla37jfea'>
     <content creator='initiator' name='voice'>
       <description xmlns='urn:xmpp:jingle:apps:rtp:1' media='audio'>
+        <payload-type id='101' name='opus' clockrate='48000'/>
         <payload-type id='96' name='speex' clockrate='16000'/>
         <payload-type id='97' name='speex' clockrate='8000'/>
         <payload-type id='18' name='G729'/>
@@ -1068,6 +1062,7 @@ Romeo                         Juliet
           sid='a73sjjvkla37jfea'>
     <content creator='initiator' name='voice'>
       <description xmlns='urn:xmpp:jingle:apps:rtp:1' media='audio'>
+        <payload-type id='101' name='opus' clockrate='48000'/>
         <payload-type id='97' name='speex' clockrate='8000'/>
         <payload-type id='18' name='G729'/>
       </description>
@@ -1096,7 +1091,7 @@ Romeo                         Juliet
     to='juliet@capulet.example/yn0cl4bnw0yr3vym'
     type='result'/>
     ]]></example>
-    <p>Once connectivity is established (which might necessitate the exchange of additional candidates via transport-info messages), the parties begin to exchange media. In this case they would use RTP to exchange audio using the Speex codec at a clockrate of 8000 since that is the highest-priority codec for the responder (as determined by the XML order of the &PAYLOADTYPE; children).</p>
+    <p>Once connectivity is established (which might necessitate so-called "trickling" of additional candidates via transport-info messages as described in XEP-0176), the parties begin to exchange media. In this case they would use RTP to exchange audio using the Opus codec at a clockrate of 48000 since that is the highest-priority codec for the responder (as determined by the XML order of the &PAYLOADTYPE; children).</p>
     <p>The parties can continue the session as long as desired.</p>
     <p>Eventually, one of the parties terminates the session.</p>
     <example caption="Responder terminates the session"><![CDATA[
@@ -1168,6 +1163,7 @@ Romeo                         Juliet
           sid='a73sjjvkla37jfea'>
     <content creator='initiator' name='voice'>
       <description xmlns='urn:xmpp:jingle:apps:rtp:1' media='audio'>
+        <payload-type id='101' name='opus' clockrate='48000'/>
         <payload-type id='96' name='speex' clockrate='16000'/>
         <payload-type id='97' name='speex' clockrate='8000'/>
         <payload-type id='18' name='G729'/>
@@ -1252,6 +1248,7 @@ Romeo                         Juliet
           sid='a73sjjvkla37jfea'>
     <content creator='initiator' name='voice'>
       <description xmlns='urn:xmpp:jingle:apps:rtp:1' media='audio'>
+        <payload-type id='101' name='opus' clockrate='48000'/>
         <payload-type id='97' name='speex' clockrate='8000'/>
         <payload-type id='18' name='G729'/>
         <encryption>
@@ -1287,7 +1284,7 @@ Romeo                         Juliet
     to='juliet@capulet.example/yn0cl4bnw0yr3vym'
     type='result'/>
     ]]></example>
-    <p>Once connectivity is established (which might necessitate the exchange of additional candidates via transport-info messages), the parties begin to exchange media. In this case they would use RTP to exchange audio using the Speex codec at a clockrate of 8000 since that is the highest-priority codec for the responder (as determined by the XML order of the &PAYLOADTYPE; children).</p>
+    <p>Once connectivity is established (which might necessitate so-called "trickling" of additional candidates via transport-info messages as described in XEP-0176), the parties begin to exchange media. In this case they would use RTP to exchange audio using the Opus codec at a clockrate of 48000 since that is the highest-priority codec for the responder (as determined by the XML order of the &PAYLOADTYPE; children).</p>
     <p>The parties can continue the session as long as desired.</p>
     <p>Eventually, one of the parties terminates the session.</p>
     <example caption="Responder terminates the session"><![CDATA[
@@ -1381,6 +1378,7 @@ Romeo                         Juliet
           sid='a73sjjvkla37jfea'>
     <content creator='initiator' name='voice'>
       <description xmlns='urn:xmpp:jingle:apps:rtp:1' media='audio'>
+        <payload-type id='101' name='opus' clockrate='48000'/>
         <payload-type id='96' name='speex' clockrate='16000'/>
         <payload-type id='97' name='speex' clockrate='8000'/>
         <payload-type id='18' name='G729'/>
@@ -1455,6 +1453,7 @@ Romeo                         Juliet
           sid='a73sjjvkla37jfea'>
     <content creator='initiator' name='voice'>
       <description xmlns='urn:xmpp:jingle:apps:rtp:1' media='audio'>
+        <payload-type id='101' name='opus' clockrate='48000'/>
         <payload-type id='97' name='speex' clockrate='8000'/>
         <payload-type id='18' name='G729'/>
       </description>
@@ -1481,7 +1480,7 @@ Romeo                         Juliet
     to='juliet@capulet.example/yn0cl4bnw0yr3vym'
     type='result'/>
     ]]></example>
-    <p>Once end-to-end connectivity is established (which might necessitate the exchange of additional candidates via transport-info messages), the parties begin to exchange media. In this case they would use RTP to exchange audio using the Speex codec at a clockrate of 8000 since that is the highest-priority codec for the responder (as determined by the XML order of the &PAYLOADTYPE; children).</p>
+    <p>Once connectivity is established (which might necessitate so-called "trickling" of additional candidates via transport-info messages as described in XEP-0176), the parties begin to exchange media. In this case they would use RTP to exchange audio using the Opus codec at a clockrate of 48000 since that is the highest-priority codec for the responder (as determined by the XML order of the &PAYLOADTYPE; children).</p>
     <p>Romeo, being an amorous young man, requests to add video to the audio chat.</p>
     <example caption="Adding video"><![CDATA[
 <iq from='romeo@montague.example/dr4hcr0st3lup4c'
@@ -1770,6 +1769,18 @@ Romeo                         Juliet
                     type='bandwidthElementType'
                     minOccurs='0' 
                     maxOccurs='1'/>
+        <xs:any namespace="##other" 
+                processContents="lax"
+                minOccurs="0" 
+                maxOccurs="unbounded"/>
+        <xs:element name='rtcp-mux' 
+                    type='empty'
+                    minOccurs='0' 
+                    maxOccurs='1'/>
+        <xs:any namespace="##other" 
+                processContents="lax"
+                minOccurs="0" 
+                maxOccurs="unbounded"/>
       </xs:sequence>
       <xs:attribute name='media'
                     type='xs:NCName'
@@ -1808,6 +1819,10 @@ Romeo                         Juliet
                   minOccurs='0' 
                   maxOccurs='unbounded'/>
     </xs:sequence>
+    <xs:attribute name='required'
+                  type='xs:boolean'
+                  use='optional'
+                  default='0'/>
   </xs:complexType>
 
   <xs:complexType name='payloadElementType'>
