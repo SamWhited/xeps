@@ -74,7 +74,7 @@
   <ul>
     <li>MIX conversations (roughly equivalent to MUC rooms) are hosted on a MIX domain, e.g. `mix.example.com`, which is discoverable through &xep0030;. Each conversation on the service may then be discovered and queried.</li>
     <li>Re-using the model from &xep0163; (where every user JID (e.g., `user@example.com`) is its own pubsub service), in MIX each conversation (e.g., `conversation@mix.example.com`) is a pubsub service.</li>
-    <li>A conversation's pubsub service can contains any number of nodes for different event types or data formats. As described below, this document defines several standard nodes; however, future specifications or proprietary services can define their own nodes for extensibility.</li>
+    <li>A conversation's pubsub service can contain any number of nodes for different event types or data formats. As described below, this document defines several standard nodes; however, future specifications or proprietary services can define their own nodes for extensibility.</li>
     <li>All information sharing within the conversation uses standard PubSub semantics from &xep0060;. There are no special-purpose message or presence stanzas, such as those used to join roooms in MUC.</li>
     <li>Affiliations with the nodes are, by default, tied together as affiliations on the conversation itself rather than individual nodes, so that allowing or denying access to a conversation is a single affiliation change.</li>
     <li>&xep0313; (MAM) is used for all history access, with each node being individually addressable for MAM queries. This simplifies implementation compared to MUC (which had a specialized and rather limited history retrieval mechanism).</li>
