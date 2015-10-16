@@ -496,7 +496,22 @@
   <p>None.</p>
 </section1>
 <section1 topic='XMPP Registrar Considerations' anchor='registrar'>
-  <p>Register a namespace.</p>
+  <p>
+    This specification defines the following XML namespaces:
+  </p>
+  <ul>
+    <li>urn:xmpp:mix:0</li>
+  </ul>
+  <p>
+    The &REGISTRAR; shall include the foregoing namespaces in its disco
+    features registry as defined in &xep0030;.
+  </p>
+    <code><![CDATA[
+<var>
+  <name>urn:xmpp:mix:0</name>
+  <desc>Indicates support for MIX multi-user messaging</desc>
+  <doc>XEP-xxxx</doc>
+</var>]]></code>
 </section1>
 <section1 topic='XML Schema' anchor='schema'>
   <p>TBD.</p>
