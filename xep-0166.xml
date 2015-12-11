@@ -39,13 +39,14 @@
   &hildjj;
   <revision>
     <version>1.2rc1</version>
-    <date>2015-08-17</date>
+    <date>2015-12-10</date>
     <initials>psa</initials>
     <remark>
       <ul>
         <li>Disallowed use of the same name for multiple content type definitions, thus enabling mapping of content names to a=mid values in SDP.</li>
         <li>Allowed unknown values for the 'action' attribute but specified that recipients must ignore messages whose 'action' values they do not understand.</li>
         <li>Provided a clearer explanation of the content-add action.</li>
+        <li>Added unknown-content error condition.</li>
         <li>Updated to reflect compatibility with WebRTC and newer specifications for multimedia standards.</li>
       </ul>
     </remark>
@@ -1451,6 +1452,11 @@ PENDING  o-----------------------+   |
       <td>The request is rejected because it was sent while the initiator was awaiting a reply on a similar request.</td>
     </tr>
     <tr>
+      <td>&lt;unknown-content/&gt;</td>
+      <td>&notfound;</td>
+      <td>The 'name' attribute specifies a content definition that is unknown to the recipient; used in response to a content-modify or other content-related action.</td>
+    </tr>
+    <tr>
       <td>&lt;unknown-session/&gt;</td>
       <td>&notfound;</td>
       <td>The 'sid' attribute specifies a session that is unknown to the recipient (e.g., no longer live according to the recipient's state machine because the recipient previously terminated the session).</td>
@@ -1741,6 +1747,7 @@ PENDING  o-----------------------+   |
 
   <xs:element name='out-of-order' type='empty'/>
   <xs:element name='tie-break' type='empty'/>
+  <xs:element name='unknown-content' type='empty'/>
   <xs:element name='unknown-session' type='empty'/>
   <xs:element name='unsupported-info' type='empty'/>
 
