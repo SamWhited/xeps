@@ -39,7 +39,7 @@
   &hildjj;
   <revision>
     <version>1.2rc1</version>
-    <date>2015-12-10</date>
+    <date>2015-12-14</date>
     <initials>psa</initials>
     <remark>
       <ul>
@@ -1402,7 +1402,55 @@ PENDING  o-----------------------+   |
 </iq>
   ]]></example>
   <p>Currently the only security precondition that is envisioned will enforce the use of end-to-end encryption for the transport before application data can be exchanged. This document does not define any security preconditions, just as it does not define any application formats or transport methods. See &xtls; for an in-progress description of a security precondition using Transport Layer Security (TLS).</p>
-  <p>In order to exchange information about the establishment or maintenance of a security precondition, either party might send a Jingle security-info message. For example, when attempting to negotiate the use of TLS the initiator might send hints about his supported TLS methods (e.g., X.509 certificates and Secure Remote Password) in his session-initiate message and the responder might also send hints about her supported methods (e.g., X.509 and SRP) in her session-accept message; however, it is possible that the initiator might be able to verify the responder's certificate and therefore needs to inform the responder (via a security-info message) that he can in the end support only the X.509 method for this negotiation. An example follows.</p>
+  <p>In order to exchange information about the establishment or maintenance of a security precondition, either party might send a Jingle security-info message. For example, when attempting to negotiate the use of TLS the initiator might send hints about his supported TLS methods (e.g., X.509 certificates and Secure Remote Password) in his session-initiate message.</p>
+  <example caption="Initiator initiates session"><![CDATA[
+<iq from='romeo@montague.lit/orchard'
+    id='xn28s7gk'
+    to='juliet@capulet.lit/balcony'
+    type='set'>
+  <jingle xmlns='urn:xmpp:jingle:1'>
+          action='session-initiate'
+          initiator='romeo@montague.lit/orchard'
+          sid='a73sjjvkla37jfea'>
+    <content creator='initiator' name='xmlstream'>
+      <description xmlns='urn:xmpp:jingle:apps:xmlstream:0'/>
+      <transport xmlns='urn:xmpp:jingle:transports:ibb:0'
+                 block-size='4096'
+                 sid='ch3d9s71'/>
+      <security xmlns='urn:xmpp:jingle:security:xtls:0'>
+        <fingerprint algo='sha1'>RomeoX509CertSHA1Hash</fingerprint>
+        <method name='x509'/>
+        <method name='srp'/>
+      </security>
+    </content>
+  </jingle>
+</iq>
+  ]]></example>
+  <p>Similarly, the responder might also send hints about her supported methods (e.g., X.509 and SRP) in her session-accept message.</p>
+  <example caption="Responder accepts session"><![CDATA[
+<iq from='juliet@capulet.com/balcony'
+    id='hf64hl'
+    to='romeo@montague.net/orchard'
+    type='set'>
+  <jingle xmlns='urn:xmpp:jingle:1'>
+          action='session-accept'
+          initiator='romeo@montague.lit/orchard'
+          sid='a73sjjvkla37jfea'>
+    <content creator='initiator' name='xmlstream'>
+      <description xmlns='urn:xmpp:jingle:apps:xmlstream:0'/>
+      <transport xmlns='urn:xmpp:jingle:transports:ibb:0'
+                 block-size='4096'
+                 sid='ch3d9s71'/>
+      <security xmlns='urn:xmpp:jingle:security:xtls:0'/>
+        <fingerprint algo='sha1'>JulietX509CertSHA1Hash</fingerprint>
+        <method name='x509'/>
+        <method name='srp'/>
+      </security>
+    </content>
+  </jingle>
+</iq>
+  ]]></example>
+  <p>however, it is possible that the initiator might be able to verify the responder's certificate and therefore needs to inform the responder (via a security-info message) that he can in the end support only the X.509 method for this negotiation. An example follows.</p>
   <example caption="Initiator sends security-info message"><![CDATA[
 <iq from='romeo@montague.example/dr4hcr0st3lup4c'
     id='zyw6m167'
