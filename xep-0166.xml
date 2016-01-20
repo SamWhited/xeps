@@ -651,6 +651,9 @@ Romeo                         Juliet
       <li>Double-dashed lines (===) represent media packets that are sent via the data channel, which typically is not an XMPP channel (although the <cite>Jingle In-Band Bytestreams Transport Method</cite> is an exception) but instead is a direct or mediated channel between the endpoints.</li>
     </ul>
   </section2>
+  <section2 topic='JIDs' anchor='terms-jids'>
+    <p>In accordance with the recommendations in &rfc6120;, the resource identifier portions of the JIDs juliet@capulet.example/yn0cl4bnw0yr3vym and romeo@montague.example/dr4hcr0st3lup4c are meant to appear random; however, for purposes of readability and communication, they can be understood as "my very own balcony" and "capulets orchard" reversed and with haxor substitutions.</p>
+  </section2>
 </section1>
 <section1 topic='Concepts and Approach' anchor='concepts'>
   <p>Jingle consists of three parts, each with its own syntax and semantics:</p>
