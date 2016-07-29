@@ -37,10 +37,11 @@
   &robmcqueen;
   &seanegan;
   &hildjj;
+  &lance;
   <revision>
-    <version>1.2rc1</version>
-    <date>2015-12-14</date>
-    <initials>psa</initials>
+    <version>1.2rc2</version>
+    <date>2016-03-12</date>
+    <initials>psa/ls</initials>
     <remark>
       <ul>
         <li>Disallowed use of the same name for multiple content type definitions, thus enabling mapping of content names to a=mid values in SDP.</li>
@@ -48,6 +49,9 @@
         <li>Provided a clearer explanation of the content-add action.</li>
         <li>Added unknown-content error condition.</li>
         <li>Updated to reflect compatibility with WebRTC and newer specifications for multimedia standards.</li>
+        <li>Added description of the conceptual model underlying Jingle.</li>
+        <li>Described the reasoning behind tie-breaking.</li>
+        <li>Added implementation guidelines.</li>
       </ul>
     </remark>
   </revision>
@@ -390,7 +394,7 @@
   </revision>
 </header>
 <section1 topic='Introduction' anchor='intro'>
-  <p>The purpose of Jingle is to enable the negotiation and management of media sessions between XMPP entities, where the negotiation and management occur over the XMPP signalling path and the relevant session data (e.g., audio or video) is exchanged over a media path that is usually a dedicated non-XMPP transport. In essence, Jingle provides the same functionality as the "offer/answer" model defined in &rfc3264;, except that XMPP provides a way to discover the capabilities of the intended recipient (via &xep0030; and &xep0115;) and thus avoids the "bundle" problem described in &bundle;.</p>
+  <p>The purpose of Jingle is to enable the negotiation and management of media sessions between XMPP entities, where the negotiation and management occur over the XMPP signalling path and the relevant session data (e.g., audio or video) is exchanged over a media path that is usually a dedicated non-XMPP transport. In essence, Jingle provides a framework for negotiation and management of media streaming, file exchange, and other interactions, but it does not actually make those interactions happen - that work is done by other protocols and code modules that handle transport methods, application types, and security policies (for a more detailed description, see the "Jingle Model" section below). Thus Jingle provides the same functionality as the "offer/answer" model defined in &rfc3264;, except that XMPP provides a way to discover the capabilities of the intended recipient (via &xep0030; and &xep0115;) and thus avoids the "bundle" problem described in &bundle;.</p>
   <p>Jingle is designed in a modular way:</p>
   <ul>
     <li><p>Developers can easily plug in support for a wide variety of application formats, such as voice and video chat (see &xep0167;) or file transfer (see &xep0234;).</p></li>
@@ -598,6 +602,10 @@ Romeo                         Juliet
     to='juliet@capulet.example/yn0cl4bnw0yr3vym'
     type='result'/>
   ]]></example>
+</section1>
+
+<section1 topic='The Jingle Model' anchor='model'>
+  <p>
 </section1>
 
 <section1 topic='Requirements' anchor='reqs'>
