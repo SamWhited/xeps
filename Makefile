@@ -15,10 +15,12 @@ help:
 	@echo ' '
 	@echo '                  help  -  (this message)'
 	@echo '                   all  -  build all XEPs (same as make html)'
+	@echo '                  epub  -  build all XEPs'
 	@echo '                  html  -  build all XEPs'
 	@echo '                 clean  -  recursively unlink the build tree'
 	@echo '               preview  -  builds html whenever an XEP changes (requires inotify-tools)'
 	@echo '              xep-xxxx  -  build xep-xxxx.html'
+	@echo '         xep-xxxx.epub  -  build xep-xxxx.epub'
 	@echo '         xep-xxxx.html  -  build xep-xxxx.html'
 	@echo ' '
 	@echo 'Output directory: "$(OUTDIR)/"'
@@ -26,17 +28,26 @@ help:
 .PHONY: all
 all: html
 
+.PHONY: epub
+epub: $(patsubst %.xml, $(OUTDIR)/%.epub, $(wildcard *.xml))
+
 .PHONY: html
 html: $(patsubst %.xml, $(OUTDIR)/%.html, $(wildcard *.xml))
 
 .PHONY: xep-%
 xep-%: $(OUTDIR)/xep-%.html ;
 
+.PHONY: xep-%.epub
+xep-%.epub: $(OUTDIR)/xep-%.epub ;
+
 .PHONY: xep-%.html
 xep-%.html: $(OUTDIR)/xep-%.html ;
 
 .PHONY: dependencies
 dependencies: $(OUTDIR)/prettify.css $(OUTDIR)/prettify.js $(OUTDIR)/xmpp.css ;
+
+$(OUTDIR)/%.epub: $(OUTDIR)/%.html
+	pandoc -f html -t epub -o $@ $<
 
 $(OUTDIR)/%.html: %.xml $(XMLDEPS) dependencies
 	xsltproc --path $(CURDIR) xep.xsl "$<" > "$@" && echo "Finished building $@"
