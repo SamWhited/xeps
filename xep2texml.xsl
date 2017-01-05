@@ -24,16 +24,18 @@
   * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
   * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
   * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-  
-	Thanks to the XSLT Standard Library http://xsltsl.sourceforge.net/.
+
+  Thanks to the XSLT Standard Library http://xsltsl.sourceforge.net/.
 -->
 
 <!--<xsl:include href="xsltsl/string.xsl"/>-->
 <xsl:import href="http://xsltsl.sourceforge.net/modules/stdlib.xsl"/>
 
+<xsl:output method="text" />
+
 <!-- Create a variable named $maxXEPVersiom containing the MAX version -->
 <xsl:variable name="maxXEPVersion">
-	<xsl:value-of select='/xep/header/revision[position()=1]/version'/>
+  <xsl:value-of select='/xep/header/revision[position()=1]/version'/>
 </xsl:variable>
 
 <!-- Create a variable named $maxXEPDate containing the MAX date -->
@@ -50,34 +52,28 @@
 <xsl:template name="formatURL">
   <xsl:param name="url"/>
   <xsl:choose>
-    <xsl:when test="string-length($url) > 80">
-      <cmd name="thanks"><parm><cmd name="url"><parm><xsl:value-of select="$url"/></parm></cmd></parm></cmd> \hspace{0.5 cm}
-    </xsl:when>
+    <xsl:when test="string-length($url) > 80">\thanks{\url{<xsl:value-of select="$url"/>}}\hspace{0.5 cm}</xsl:when>
     <xsl:otherwise>
-      <cmd name="url"><parm><xsl:value-of select="$url"/></parm></cmd> \\
-    </xsl:otherwise>
+\url{<xsl:value-of select="$url"/>}\\</xsl:otherwise>
   </xsl:choose>
 </xsl:template>
 
 <!-- convert "document": create header and continue -->
 <xsl:template match="xep">
-  <TeXML>
-    <!-- create header -->
-    <TeXML escape="0">
 %!TEX TS-program = xelatex
 %!TEX encoding = UTF-8 Unicode
 \documentclass[DIV=10]{scrartcl}
 \KOMAoptions{paper=a4}
 
 \usepackage[
-	pdftitle={XEP-<xsl:value-of select="/xep/header/number"/>: <xsl:value-of select="/xep/header/title"/>},
-	pdfauthor={XMPP Standards Foundation},
-	pdfcreator={XEP2PDF},
-	pdfproducer={XEP2PDF},
-	breaklinks = true, 
-	unicode, 
-	pagebackref, 
-	xetex]{hyperref}
+  pdftitle={XEP-<xsl:value-of select="/xep/header/number"/>: <xsl:value-of select="/xep/header/title"/>},
+  pdfauthor={XMPP Standards Foundation},
+  pdfcreator={XEP2PDF},
+  pdfproducer={XEP2PDF},
+  breaklinks = true,
+  unicode,
+  pagebackref,
+  xetex]{hyperref}
 
 % break URLs at more places
 \renewcommand{\UrlBreaks}{\do\/\do\a\do\b\do\c\do\d\do\e\do\f\do\g\do\h\do\i\do\j\do\k\do\l\do\m\do\n\do\o\do\p\do\q\do\r\do\s\do\t\do\u\do\v\do\w\do\x\do\y\do\z\do\A\do\B\do\C\do\D\do\E\do\F\do\G\do\H\do\I\do\J\do\K\do\L\do\M\do\N\do\O\do\P\do\Q\do\R\do\S\do\T\do\U\do\V\do\W\do\X\do\Y\do\Z\do\0\do\1}
@@ -132,136 +128,121 @@
 }
 
 \sloppy
-    </TeXML>
-    
-    <cmd name="title" nl2="1">
-      <parm>XEP-<cmd name="XEPNumber" />: <xsl:value-of select="/xep/header/title"/></parm>
-    </cmd>
-    <cmd name="author">
-      <parm><TeXML escape="0">
-      <xsl:for-each select='/xep/header/author'><xsl:value-of select="firstname"/><xsl:text> </xsl:text><xsl:value-of select="surname"/> \\
-      <xsl:if test="email"><xsl:call-template name="formatURL"><xsl:with-param name="url">mailto:<xsl:value-of select="email"/></xsl:with-param></xsl:call-template></xsl:if>
-      <xsl:if test="jid"><xsl:call-template name="formatURL"><xsl:with-param name="url">xmpp:<xsl:value-of select="jid"/></xsl:with-param></xsl:call-template></xsl:if>
-      <xsl:if test="uri"><xsl:call-template name="formatURL"><xsl:with-param name="url"><xsl:value-of select="uri"/></xsl:with-param></xsl:call-template></xsl:if> <xsl:if test='position() != last()'> \and </xsl:if>
-      </xsl:for-each>
-      </TeXML></parm>
-    </cmd>
-    <cmd name="date">
-        <parm><TeXML escape="0"><xsl:value-of select="$maxXEPDate"/>\\ Version <xsl:value-of select="$maxXEPVersion"/></TeXML></parm>
-    </cmd>
-    <!-- process content -->
-    <env name="document">
-      <TeXML escape="0">
-        <cmd name="lstset">
-			<parm>language=XML,
-				breaklines=true,
-				emptylines=5,
-				frame=single,
-				rulecolor=\color{black},
-				basicstyle=\ttfamily\small\color{darkgray},
-				keywordstyle=\color{cyan},
-				stringstyle=\color{blue},
-				tagstyle=\color{purple},
-				markfirstintag=true
-			</parm>
-        </cmd>
-        
-      </TeXML>
-      <cmd name="KOMAoptions"><parm>DIV=24</parm></cmd>
-      <cmd name="pagestyle"><parm>empty</parm></cmd>
-      <cmd name="maketitle" />
-      <cmd name="thispagestyle"><parm>empty</parm></cmd>
-      <env name="center">
-      <env name="tabular"><parm>ccc</parm>
-      <TeXML escape="0">
-      <cmd name="textbf"><parm>Status</parm></cmd> &amp; <cmd name="textbf"><parm>Type</parm></cmd> &amp; <cmd name="textbf"><parm>Short Name</parm></cmd> \\
-        <xsl:value-of select="/xep/header/status"/> &amp; <xsl:value-of select="/xep/header/type"/> &amp; <TeXML escape="1"><xsl:value-of select="/xep/header/shortname"/></TeXML>
-      </TeXML>
-      </env>  
-      </env>
-      <env name="abstract">
-        <xsl:value-of select="/xep/header/abstract"/>
-      </env>
-      <cmd name="newpage" nl2="1"/>
-      <TeXML escape="0">
-            \fancyhead[L,L]{\includegraphics[totalheight=10pt]{xmpp.pdf} \slshape \leftmark}
-            \fancyfoot[C,C]{\thepage}
-        </TeXML>
-      <cmd name="KOMAoptions"><parm>DIV=10</parm></cmd>
-      <cmd name="section*" nl2="1"><parm>Legal</parm></cmd>
-      <xsl:apply-templates select="/xep/header/legal" />
-      <cmd name="newpage" nl2="1"/>
-      <cmd name="tableofcontents" nl2="1"/>
-      <cmd name="newpage" nl2="1"/>
-      <cmd name="pagestyle" nl2="1"><parm>fancy</parm></cmd>
-      <cmd name="setcounter" nl2="1"><parm>page</parm><parm>1</parm></cmd>
-      <xsl:apply-templates/>
-    </env>
-  </TeXML>
+
+\newcommand*{\xeptitle}{<xsl:value-of select="/xep/header/title"/>}
+\newcommand*{\xepnum}{<cmd name="XEPNumber" />}
+
+\title{XEP-\xepnum: \xeptitle}
+\author{%
+<xsl:for-each select='/xep/header/author'>
+  <xsl:value-of select="firstname"/><xsl:text> </xsl:text><xsl:value-of select="surname"/> \\<xsl:if test="email"><xsl:call-template name="formatURL"><xsl:with-param name="url">mailto:<xsl:value-of select="email"/></xsl:with-param></xsl:call-template></xsl:if><xsl:if test="jid"><xsl:call-template name="formatURL"><xsl:with-param name="url">xmpp:<xsl:value-of select="jid"/></xsl:with-param></xsl:call-template></xsl:if><xsl:if test="uri"><xsl:call-template name="formatURL"><xsl:with-param name="url"><xsl:value-of select="uri"/></xsl:with-param></xsl:call-template></xsl:if>
+  <xsl:if test='position() != last()'>
+\and </xsl:if>
+</xsl:for-each>
+}
+\date{<xsl:value-of select="$maxXEPDate"/>\\ Version <xsl:value-of select="$maxXEPVersion"/>}
+
+\begin{document}
+
+\lstset{language=XML,
+  breaklines=true,
+  emptylines=5,
+  frame=single,
+  rulecolor=\color{black},
+  basicstyle=\ttfamily\small\color{darkgray},
+  keywordstyle=\color{cyan},
+  stringstyle=\color{blue},
+  tagstyle=\color{purple},
+  markfirstintag=true}
+\KOMAoptions{DIV=24}
+\pagestyle{empty}
+
+\maketitle
+
+\thispagestyle{empty}
+
+\begin{center}
+\begin{tabular}{ccc}
+<xsl:text disable-output-escaping="yes"><![CDATA[\textbf{Status} & \textbf{Type} & \textbf{Short Name} \\
+]]></xsl:text>
+<xsl:value-of select="/xep/header/status"/>
+<xsl:text disable-output-escaping="yes"><![CDATA[ & ]]></xsl:text>
+<xsl:value-of select="/xep/header/type"/>
+<xsl:text disable-output-escaping="yes"><![CDATA[ & ]]></xsl:text>
+<xsl:value-of select="/xep/header/shortname"/>
+\end{tabular}
+\end{center}
+
+\begin{abstract}
+<xsl:value-of select="/xep/header/abstract"/>
+\end{abstract}
+
+\newpage
+
+\fancyhead[L,L]{\includegraphics[totalheight=10pt]{xmpp.pdf} \slshape \leftmark}
+\fancyfoot[C,C]{\thepage}
+\KOMAoptions{DIV=10}
+
+\section*{Legal}
+<xsl:apply-templates select="/xep/header/legal" />
+\newpage
+\tableofcontents
+\newpage
+\pagestyle{fancy}
+\setcounter{page}{1}
+\end{document}
+<xsl:apply-templates/>
 </xsl:template>
 
 <!-- for legal crap -->
 <xsl:template match="copyright">
-  <cmd name="subsection*" nl2="1"><parm>Copyright</parm></cmd>
-  <group><cmd name="small" />
-  <xsl:apply-templates/>
-  </group>
+  \subsection*{Copyright}
+  {\small <xsl:apply-templates/>}
 </xsl:template>
 
 <xsl:template match="permissions">
-  <cmd name="subsection*" nl2="1"><parm>Permissions</parm></cmd>
-  <group><cmd name="small" />
-  <xsl:apply-templates/>
-  </group>
+  \subsection*{Permissions}
+  {\small <xsl:apply-templates/>}
 </xsl:template>
 
 <xsl:template match="warranty">
-  <cmd name="subsection*" nl2="1"><parm>Warranty</parm></cmd>
-  <group><cmd name="small" />
-  <xsl:apply-templates/>
-  </group>
+  \subsection*{Warranty}
+  {\small <xsl:apply-templates/>}
 </xsl:template>
 
 <xsl:template match="liability">
-  <cmd name="subsection*"><parm>Liability</parm></cmd>
-  <group><cmd name="small" />
-  <xsl:apply-templates/>
-  </group>
+  \subsection*{Liability}
+  {\small <xsl:apply-templates/>}
 </xsl:template>
 
 <xsl:template match="conformance">
-  <cmd name="subsection*"><parm>Conformance</parm></cmd>
-  <group><cmd name="small" />
-  <xsl:apply-templates/>
-  </group>
+  \subsection*{Conformance}
+  {\small <xsl:apply-templates/>}
 </xsl:template>
 
 
 <xsl:template match="header">
 </xsl:template>
-  
+
 
 <!-- table -->
 <xsl:template match='table'>
-  <TeXML escape="0">
-    <env name="center">
-    <env name='longtabu'>
-      <parm><xsl:for-each select='tr[1]/th | tr[1]/td'><xsl:if test="position() = 1">l</xsl:if><xsl:if test='position() != last() and position() > 1'>X</xsl:if><xsl:if test='position() = last()'>X</xsl:if></xsl:for-each></parm>
-      <xsl:for-each select='tr'>
-        <xsl:for-each select='td | th'><xsl:if test='position() > 1'> &amp; </xsl:if><TeXML escape="1"><xsl:value-of select='.'/></TeXML><xsl:if test='position() = last()'> \\</xsl:if></xsl:for-each>
-        <xsl:if test="position() = 1">
-          \hline
-          \hline
-          \endhead
-        </xsl:if>
-      </xsl:for-each>
-    </env>
-  </env>
-</TeXML>
+  \begin{center}
+  \begin{longtabu}{<xsl:for-each select='tr[1]/th | tr[1]/td'><xsl:if test="position() = 1">l</xsl:if><xsl:if test='position() != last() and position() > 1'>X</xsl:if><xsl:if test='position() = last()'>X</xsl:if></xsl:for-each>}
+  <xsl:for-each select='tr'>
+    <xsl:for-each select='td | th'><xsl:if test='position() > 1'> &amp; </xsl:if><xsl:value-of select='.'/><xsl:if test='position() = last()'> \\</xsl:if></xsl:for-each>
+    <xsl:if test="position() = 1">
+      \hline
+      \hline
+      \endhead
+    </xsl:if>
+  </xsl:for-each>
+  \end{longtabu}
+  \end{center}
 </xsl:template>
-  
 
-<!-- link -->  
+
+<!-- link -->
 <xsl:template match="span">
   <xsl:apply-templates/>
 </xsl:template>
@@ -279,47 +260,26 @@
       <xsl:with-param name="pattern">#*</xsl:with-param>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:if test="$isInternal = 0">
-    <cmd name="href">
-      <parm>
-        <TeXML escape="0"><xsl:value-of select='@url'/></TeXML>
-      </parm>
-      <parm>
-      <xsl:if test="$isHTTP = 1">
-        <cmd name="url"><parm><xsl:apply-templates/></parm></cmd>
-      </xsl:if>
-      <xsl:if test="$isHTTP = 0">
-        <xsl:apply-templates/>
-      </xsl:if>
-      </parm>
-    </cmd>
-  </xsl:if>
-  <xsl:if test="$isInternal = 1">
-    <cmd name="hyperref">
-      <opt><TeXML escape="0"><xsl:value-of select='@url'/></TeXML></opt>
-      <parm><xsl:apply-templates/></parm>
-    </cmd>
-    <!--<TeXML escape="0"> { </TeXML><cmd name="footnotesize" /><cmd name="pageref"><parm><TeXML escape="0"><xsl:value-of select='@url'/></TeXML></parm></cmd><TeXML escape="0"> } </TeXML>-->
-  </xsl:if>
+  <xsl:if test="$isInternal = 0">\href{<xsl:value-of select='@url'/>}{<xsl:if test="$isHTTP = 1">\url{<xsl:apply-templates/>}</xsl:if><xsl:if test="$isHTTP = 0"><xsl:apply-templates/></xsl:if>}</xsl:if>
+  <xsl:if test="$isInternal = 1">\hyperref[<xsl:value-of select='@url'/>]{<xsl:apply-templates/>}</xsl:if>
 </xsl:template>
-  
+
 <!-- note -->
-<xsl:template match="note">
-  <cmd name="footnote"><parm><xsl:apply-templates/></parm></cmd>
-</xsl:template>
+<xsl:template match="note">\footnote{<xsl:apply-templates/>}</xsl:template>
 
 <!-- em -->
 <xsl:template match="em">
-  <cmd name="emph"><parm><xsl:apply-templates/></parm></cmd>
+  \emph{<xsl:apply-templates/>}
 </xsl:template>
 
 <!-- strong -->
 <xsl:template match="strong">
-  <cmd name="textbf"><parm><xsl:apply-templates/></parm></cmd>
+  \textbf{<xsl:apply-templates/>}
 </xsl:template>
 
 <!-- sub -->
 <xsl:template match="sub">
+  \[\textsuperscript{<xsl:apply-templates/>}\]
   <math><cmd name="textsuperscript"><parm><xsl:apply-templates/></parm></cmd></math>
 </xsl:template>
 
@@ -330,120 +290,94 @@
 
 
 <!-- p -->
-<xsl:template match="p">  
-  <xsl:apply-templates/><TeXML escape="0" emptylines="1"><xsl:text>\\
-  
-  </xsl:text></TeXML>
-</xsl:template>  
+<xsl:template match="p">
+<xsl:apply-templates/><xsl:text>\\
+</xsl:text>
+</xsl:template>
 
 <!-- li -->
 <xsl:template match="li">
-  <TeXML escape="1" emptylines="1">
-  <cmd name="item" /> <xsl:apply-templates/><xsl:text>
-  
-  </xsl:text>
-  </TeXML>
+  \item <xsl:apply-templates/>
 </xsl:template>
 
 <!-- ul -->
-<xsl:template match="ul">  
-  <env name="itemize">
-    <xsl:apply-templates/>
-  </env>
-</xsl:template>  
+<xsl:template match="ul">
+  \begin{itemize}
+  <xsl:apply-templates/>
+  \end{itemize}
+</xsl:template>
 
 <!-- ol -->
-<xsl:template match="ol">  
-  <env name="enumerate">
-    <xsl:apply-templates/>
-  </env>
+<xsl:template match="ol">
+\begin{enumerate}
+  <xsl:apply-templates/>
+\end{enumerate}
 </xsl:template>
 
 <!-- dl -->
-<xsl:template match="dl">  
-  <env name="description">
-    <xsl:apply-templates/>
-  </env>
+<xsl:template match="dl">
+\begin{description}
+  <xsl:apply-templates/>
+\end{description}
 </xsl:template>
 
 <!-- di -->
 <xsl:template match="di">
-  <TeXML escape="1" emptylines="1">
-  <cmd name="item"><opt><xsl:value-of select="./dt" /></opt></cmd>
-	<xsl:text>
-  </xsl:text>
-	<xsl:value-of select="./dd" /> 
-  </TeXML>
+\item[<xsl:value-of select="./dt" />] <xsl:value-of select="./dd" />
 </xsl:template>
-  
-<!-- example -->                               
-<xsl:template match="example">                   
-    <env name="lstlisting">                         
-      <opt>caption=<group><TeXML escape="1"><xsl:value-of select="@caption"/></TeXML></group></opt>
-      <TeXML escape="0" emptylines="1">
-      <xsl:apply-templates />     
-      </TeXML>
-    </env>                                                  
-</xsl:template>      
+
+<!-- example -->
+<xsl:template match="example">
+  \begin{lstlisting}[caption={<xsl:value-of select="@caption"/>}]
+  <xsl:apply-templates />
+  \end{lstlisting}
+</xsl:template>
 
 <xsl:template match="br">
   <!--<cmd name="newline" gr="0"/>-->
-  
+
 </xsl:template>
 
-<!-- code -->                               
+<!-- code -->
 <xsl:template match="code">
   <xsl:if test='@class = "inline"'>
-    <cmd name='path'><parm><TeXML escape="0"><xsl:value-of select="."/></TeXML></parm></cmd>
+    \path{<xsl:value-of select="."/>}
   </xsl:if>
   <xsl:if test='not(@class)'>
-    <env name="lstlisting">              
-    <TeXML escape="0" emptylines="1" ligatures="1">
-      <xsl:value-of select="."/>
-    </TeXML>
-    </env>                          
+    \begin{lstlisting}
+    <!-- TODO: Figure out how to not escape this? -->
+    <xsl:value-of select="."/>
+    \end{lstlisting}
   </xsl:if>
 </xsl:template>
 
 <!-- img -->
 <xsl:template match="img">
-  <env name="figure"><opt>H</opt>
-    <cmd name="centering" />
-    <cmd name="adjustimage"><parm><TeXML escape="0">max size={.9\textwidth}{.9\textheight}</TeXML></parm><parm>inlineimage-<xsl:value-of select="/xep/header/number" />-<xsl:value-of select="count(preceding::img)" /></parm></cmd>
-  </env>
+\begin{figure}{H}
+\centering
+\adjustimage{max size={.9\textwidth}{.9\textheight}}{inlineimage-<xsl:value-of select="/xep/header/number" />-<xsl:value-of select="count(preceding::img)" />}
+\end{figure}
 </xsl:template>
 
 <!-- section3 -->
 <xsl:template match="section3">
-  <cmd name="subsubsection" nl2="1">
-    <parm><xsl:text></xsl:text><xsl:value-of select="@topic"/></parm>
-  </cmd>
-  <cmd name="label">
-    <parm><TeXML escape="0"><xsl:value-of select="@anchor" /></TeXML></parm>
-  </cmd>
-  <xsl:apply-templates />
+\subsubsection{<xsl:text></xsl:text><xsl:value-of select="@topic"/>}
+\label{<xsl:value-of select="@anchor" />}
+<xsl:apply-templates />
 </xsl:template>
 
 <!-- section2 -->
 <xsl:template match="section2">
-  <cmd name="subsection" nl2="1">
-    <parm><xsl:text></xsl:text><xsl:value-of select="@topic"/></parm>
-  </cmd>
-  <cmd name="label">
-    <parm><TeXML escape="0"><xsl:value-of select="@anchor" /></TeXML></parm>
-  </cmd>
-  <xsl:apply-templates />
+\subsection{<xsl:text></xsl:text><xsl:value-of select="@topic"/>}
+\label{<xsl:value-of select="@anchor" />}
+<xsl:apply-templates />
 </xsl:template>
 
 <!-- section1 -->
 <xsl:template match="section1">
-  <cmd name="section" nl2="1">
-    <parm><xsl:text></xsl:text><xsl:value-of select="@topic"/></parm>
-  </cmd>
-  <cmd name="label" nl2="1">
-    <parm><TeXML escape="0"><xsl:value-of select="@anchor" /></TeXML></parm>
-  </cmd>
-  <xsl:apply-templates />
+\section{<xsl:text></xsl:text><xsl:value-of select="@topic"/>}
+\label{<xsl:value-of select="@anchor" />}
+<xsl:apply-templates />
 </xsl:template>
 
 

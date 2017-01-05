@@ -56,16 +56,10 @@ $(OUTDIR)/%.html: %.xml $(XMLDEPS) dependencies
 $(OUTDIR)/xmpp.pdf $(OUTDIR)/xmpp-text.pdf: $(OUTDIR)
 	cp "resources/$(notdir $@)" "$@"
 
-$(OUTDIR)/%.pdf: %.xml $(TEXMLDEPS) $(XMLDEPS) dependencies
-	xmllint --nonet --noout --noent --loaddtd --valid "$<"
-	# Check for non-data URIs
-	! xmllint --nonet --noout --noent --loaddtd --xpath "//img/@src[not(starts-with(., 'data:'))]" $< 2>/dev/null && true
+$(OUTDIR)/%.tex: %.xml $(TEXMLDEPS) $(XMLDEPS) dependencies
+	xsltproc --path $(CURDIR) xep2texml.xsl "$<" > "$@"
 
-	xsltproc --path $(CURDIR) xep2texml.xsl "$<" > "$(@:.pdf=.tex.xml)"
-	texml -e utf8 "$(@:.pdf=.tex.xml)" "$(@:.pdf=.tex)"
-	sed -i -e 's|\([\s"]\)\([^"]http://[^ "]*\)|\1\\path{\2}|g' \
-		-e 's|\\hyperref\[#\([^}]*\)\]|\\hyperref\[\1\]|g' \
-		-e 's|\\pageref{#\([^}]*\)}|\\pageref{\1}|g' "$(@:.pdf=.tex)"
+$(OUTDIR)/%.pdf: $(OUTDIR)/%.tex
 	cd $(OUTDIR); xelatex -interaction=batchmode -no-shell-escape "$(notdir $(basename $@)).tex" && echo "Finished building $@"
 
 $(OUTDIR)/%.js: %.js
