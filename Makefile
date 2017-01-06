@@ -68,10 +68,10 @@ $(OUTDIR)/%.pdf: %.xml $(TEXMLDEPS) $(XMLDEPS) dependencies
 		-e 's|\\pageref{#\([^}]*\)}|\\pageref{\1}|g' "$(@:.pdf=.tex)"
 	cd $(OUTDIR); xelatex -interaction=batchmode -no-shell-escape "$(notdir $(basename $@)).tex" && echo "Finished building $@"
 
-$(OUTDIR)/%.js: %.js
+$(OUTDIR)/%.js: resources/%.js
 	cp "$<" "$@"
 
-$(OUTDIR)/%.css: %.css
+$(OUTDIR)/%.css: resources/%.css
 	cp "$<" "$@"
 
 $(TEMPDIR) $(OUTDIR) $(RESOURCESDIR):
