@@ -739,8 +739,8 @@ IANA Service Location Protocol, Version 2 (SLPv2) Templates</link></span> <note>
   <author>
     <firstname>Peter</firstname>
     <surname>Saint-Andre</surname>
-    <email>peter@andyet.net</email>
-    <jid>stpeter@stpeter.im</jid>
+    <email>stpeter@stpeter.im</email>
+    <jid>peter@jabber.org</jid>
     <uri>https://stpeter.im/</uri>
   </author>
 " >
