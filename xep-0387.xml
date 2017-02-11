@@ -32,6 +32,7 @@
       <spec>XEP-0114</spec>
       <spec>XEP-0115</spec>
       <spec>XEP-0124</spec>
+      <spec>XEP-0156</spec>
       <spec>XEP-0163</spec>
       <spec>XEP-0191</spec>
       <spec>XEP-0198</spec>
@@ -158,6 +159,14 @@
           <th>Advanced Server</th>
           <th>Advanced Client</th>
           <th>Providers</th>
+        </tr>
+        <tr>
+          <td><strong>Web Connection Method Discovery</strong></td>
+          <td align='center'>N/A</td>
+          <td align='center'>&#10005;</td>
+          <td align='center'>N/A</td>
+          <td align='center'>&#10003;</td>
+          <td>&xep0156;</td>
         </tr>
         <tr>
           <td><strong>Web Connection Mechanisms</strong></td>
